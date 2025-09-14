@@ -1,0 +1,6 @@
+@WorkflowCore.Monitor_HostAddress = http://localhost:5253
+
+GET {{WorkflowCore.Monitor_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

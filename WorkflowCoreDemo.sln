@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36414.22 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowCore.Monitor", "WorkflowCore.Monitor\WorkflowCore.Monitor.csproj", "{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowCore", "workflow-core\src\WorkflowCore\WorkflowCore.csproj", "{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

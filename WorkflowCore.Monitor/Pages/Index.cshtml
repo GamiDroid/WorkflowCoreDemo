@@ -1,0 +1,61 @@
+﻿@page "/workflows"
+@model WorkflowCore.Monitor.Pages.IndexModel
+@{
+    ViewData["Title"] = "Workflow Monitor";
+}
+
+<h1>Workflow Monitor</h1>
+
+<h3>Registered Workflow Definitions</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Version</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var definition in Model.WorkflowDefinitions)
+        {
+            <tr>
+                <td>@definition.Id</td>
+                <td>@definition.Version</td>
+                <td>@definition.Description</td>
+                <td>
+                    <button type="submit" asp-page-handler="Start" asp-route-id="@definition.Id">Start</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Workflow Instances</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Workflow</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var instance in Model.WorkflowInstances)
+        {
+            <tr>
+                <td>@instance.Id</td>
+                <td>@instance.WorkflowDefinitionId v@(instance.Version)</td>
+                <td>@instance.Status</td>
+                <td>@instance.CreateTime</td>
+                <td>@instance.CompleteTime</td>
+                <td>
+                    <a asp-page="./Details" asp-route-id="@instance.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

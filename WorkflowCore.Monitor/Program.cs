@@ -16,8 +16,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddWorkflow(sp =>
 {
-    sp.AddWorkflowMiddleware<MyExecuteWorkflowMiddleware>();
     sp.AddWorkflowStepMiddleware<MyStepMiddleware>();
+    sp.AddWorkflowMiddleware<MyPreWorkflowMiddleware>();
+    sp.AddWorkflowMiddleware<MyPostWorkflowMiddleware>();
 });
 
 // Add this line after your workflow-core registration
@@ -44,9 +45,11 @@ app.MapRazorPages();
 
 app.UseWorkflow();
 
+app.MapGet("/workflows", (IWorkflowRepository r, string workflowId) => r.GetWorkflowInstance(workflowId));
+
 app.MapPost("/workflows/simple/start", async (IWorkflowHost host) =>
 {
-    var workflowId = await host.StartWorkflow(nameof(SimpleWorkflow), new SimpleWorkflowData());
+    var workflowId = await host.StartWorkflow(nameof(SimpleWorkflow), new BaseWorkflowData());
 
     return Results.Ok($"SimpleWorkflow Started. WorkflowID: '{workflowId}'");
 });

@@ -6,14 +6,14 @@ namespace WorkflowCore.Monitor.Mqtt;
 
 public interface IMqttPublisher
 {
-    Task PublishAsync(string topic, object? message, bool retained = false, CancellationToken cancellationToken = default);
+    Task PublishAsync(string topic, object? message, bool retained = false, TimeSpan? expiryTime = null, CancellationToken cancellationToken = default);
 }
 
 public class MqttPublisher(IMqttConnection mqtt) : IMqttPublisher
 {
     private readonly IMqttConnection _mqtt = mqtt;
 
-    public async Task PublishAsync(string topic, object? message, bool retained, CancellationToken cancellationToken)
+    public async Task PublishAsync(string topic, object? message, bool retained, TimeSpan? expiryTime, CancellationToken cancellationToken)
     {
         var mqttMessageBuilder = new MqttApplicationMessageBuilder()
             .WithContentType("application/json")
@@ -22,7 +22,10 @@ public class MqttPublisher(IMqttConnection mqtt) : IMqttPublisher
             .WithMessageExpiryInterval((uint)TimeSpan.FromDays(14).Seconds)
             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
 
-        if (message != null)
+        if (expiryTime is not null)
+            mqttMessageBuilder = mqttMessageBuilder.WithMessageExpiryInterval((uint)expiryTime.Value.TotalSeconds);
+
+        if (message is not null)
             mqttMessageBuilder = mqttMessageBuilder.WithPayload(JsonSerializer.Serialize(message, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
 
         var mqttMessage = mqttMessageBuilder.Build();

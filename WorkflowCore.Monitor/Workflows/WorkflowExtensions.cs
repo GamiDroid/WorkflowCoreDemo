@@ -17,7 +17,7 @@ public static class WorkflowExtensions
     {
         var workflowHost = app.Services.GetRequiredService<IWorkflowHost>();
 
-        workflowHost.RegisterWorkflow<SimpleWorkflow, SimpleWorkflowData>();
+        workflowHost.RegisterWorkflow<SimpleWorkflow, BaseWorkflowData>();
 
         workflowHost.Start();
     }

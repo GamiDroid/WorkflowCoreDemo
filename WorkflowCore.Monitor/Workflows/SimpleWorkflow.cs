@@ -3,26 +3,30 @@ using WorkflowCore.Models;
 
 namespace WorkflowCore.Monitor.Workflows;
 
-public sealed class SimpleWorkflow : IWorkflow<BaseWorkflowData>
+public sealed class SimpleWorkflow : IWorkflow<ChangeoverData>
 {
     public string Id => nameof(SimpleWorkflow);
     public int Version => 1;
 
-    public void Build(IWorkflowBuilder<BaseWorkflowData> builder)
+    public void Build(IWorkflowBuilder<ChangeoverData> builder)
     {
         builder
             .StartWith(ctx => ExecutionResult.Next())
             .Delay(d => TimeSpan.FromSeconds(2))
-            .Then<ConsoleWriteStep>(setup =>
-            {
-                setup.Id("ConsoleWriteStep#0");
-            }).CancelCondition(d => d.IsStepExecuted("ConsoleWriteStep#0"), proceedAfterCancel: true)
-            .Delay(d => TimeSpan.FromSeconds(5))
-            .Then<ConsoleWriteStep>(setup =>
-            {
-                setup.Id("ConsoleWriteStep#1");
-            }).CancelCondition(d => d.IsStepExecuted("ConsoleWriteStep#1"), proceedAfterCancel: true)
-            .EndWorkflow();
+            .Parallel()
+            .Do(b => b
+
+                .Then<ConsoleWriteStep>(setup =>
+                 {
+                     setup.Id("ConsoleWriteStep#0");
+                 }).CancelCondition(d => d.IsStepExecuted("ConsoleWriteStep#0"), proceedAfterCancel: true)
+                .Delay(d => TimeSpan.FromSeconds(10))
+                .Then<ConsoleWriteStep>(setup =>
+                {
+                    setup.Id("ConsoleWriteStep#1");
+                }).CancelCondition(d => d.IsStepExecuted("ConsoleWriteStep#1"), proceedAfterCancel: true)
+            )
+            .Join();
     }
 
     private class ConsoleWriteStep : StepBodyAsync
@@ -38,17 +42,9 @@ public sealed class SimpleWorkflow : IWorkflow<BaseWorkflowData>
     }
 }
 
-public class BaseWorkflowData
+public class ChangeoverData : BaseWorkflowData
 {
-    public string WorkflowId { get; set; } = Guid.NewGuid().ToString();
-    public DateTime StartTime { get; set; } = DateTime.Now;
-    public DateTime? EndTime { get; set; }
-    public List<StepState> StepsExecuted { get; set; } = [];
-
-    public bool IsStepExecuted(string key) => StepsExecuted.Any(s => s.Key == key);
-}
-
-public record StepState(string Key, DateTime StartTime)
-{
-    public DateTime? EndTime { get; set; }
+    public int ProductionId { get; set; }
+    public string? BatchId { get; set; }
+    public string? PrinterId { get; set; }
 }

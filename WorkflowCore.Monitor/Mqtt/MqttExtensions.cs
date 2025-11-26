@@ -11,6 +11,7 @@ public static class MqttExtensions
 
         services.AddSingleton<IMqttConnection, MqttConnection>();
         services.AddSingleton<IMqttPublisher, MqttPublisher>();
+        services.AddSingleton<IMqttConsumerService, MqttConsumerService>();
 
         services.AddHostedService<MqttConnectionHost>();
 

@@ -1,7 +1,6 @@
 ﻿@page "/workflows"
-@using WorkflowCore.Models
 
-@inject WorkflowCore.AspNetCore.WorkflowMonitorService WorkflowMonitorService
+@inject WorkflowMonitorService WorkflowMonitorService
 
 <PageTitle>Workflows</PageTitle>
 
@@ -17,7 +16,7 @@
             <CellTemplate>
                 <MudStack Row>
                     <MudButton OnClick="() => Start(context.Item)" Variant="Variant.Filled" Color="Color.Secondary">Start</MudButton>
-                    <MudButton Href="@($"workflows/{context.Item.Id}")" StartIcon="@Icons.Material.Filled.MoreVert" />
+                    <MudIconButton Href="@($"workflows/{context.Item.Id}")" Icon="@Icons.Material.Filled.MoreVert" />
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>
@@ -36,7 +35,7 @@
     private async Task Start(WorkflowDefinition definition)
     {
         var workflowId = 
-            await WorkflowMonitorService.StartWorkflow(definition.Id, definition.Version);
+            await WorkflowMonitorService.StartWorkflowAsync(definition.Id, definition.Version);
         Console.WriteLine($"Worflow {definition.Id}:v{definition.Version} ({workflowId}) Started.");
     }
 }

@@ -12,12 +12,12 @@ public class WorkflowMonitorService(
     private readonly IWorkflowRegistry _registry = registry;
     private readonly IWorkflowRepository _repository = repository;
 
-    public Task<IEnumerable<WorkflowInstance>> GetWorkflowInstances()
+    public Task<IEnumerable<WorkflowInstance>> GetWorkflowInstancesAsync()
     {
         return _repository.GetWorkflowInstances(null, null, null, null, 0, 100);
     }
 
-    public Task<WorkflowInstance> GetWorkflowInstance(string id)
+    public Task<WorkflowInstance> GetWorkflowInstanceAsync(string id)
     {
         return _repository.GetWorkflowInstance(id);
     }
@@ -27,7 +27,7 @@ public class WorkflowMonitorService(
         return _registry.GetAllDefinitions();
     }
 
-    public Task<string> StartWorkflow(string workflowDefinitionName, int version)
+    public Task<string> StartWorkflowAsync(string workflowDefinitionName, int version)
     {
         return _host.StartWorkflow(workflowDefinitionName, version);
     }

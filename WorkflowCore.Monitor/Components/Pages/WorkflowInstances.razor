@@ -1,7 +1,6 @@
 ﻿@page "/workflows/{Id}"
-@using WorkflowCore.Models
 
-@inject WorkflowCore.AspNetCore.WorkflowMonitorService WorkflowMonitorService
+@inject WorkflowMonitorService WorkflowMonitorService
 
 <PageTitle>Workflow @Id</PageTitle>
 
@@ -14,14 +13,13 @@
         <PropertyColumn Property="x => x.CreateTime" Title="Created" />
         <PropertyColumn Property="x => x.CompleteTime" Title="Completed" />
         <PropertyColumn Property="x => x.Description" />
-        @* <TemplateColumn>
+        <TemplateColumn>
             <CellTemplate>
                 <MudStack Row>
-                    <MudButton OnClick="() => Start(context.Item)" Variant="Variant.Filled" Color="Color.Secondary">Start</MudButton>
-                    <MudButton Href="@($"workflows/{context.Item.Id}")" StartIcon="@Icons.Material.Filled.MoreVert" />
+                    <MudIconButton Href="@($"workflows/instances/{context.Item.Id}")" Icon="@Icons.Material.Filled.MoreVert" />
                 </MudStack>
             </CellTemplate>
-        </TemplateColumn> *@
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
@@ -43,7 +41,7 @@
 
     private async Task RefreshData()
     {
-        var instances = await WorkflowMonitorService.GetWorkflowInstances();
+        var instances = await WorkflowMonitorService.GetWorkflowInstancesAsync();
         _instances = instances.Where(i => i.WorkflowDefinitionId == Id).ToList();
     }
 }

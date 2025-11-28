@@ -1,0 +1,122 @@
+﻿@page "/workflows/instances/{Id}"
+@using System.Text.Json
+@implements IDisposable
+
+@inject WorkflowMonitorService WorkflowMonitorService
+
+<MudGrid>
+    <MudItem xs="12" sm="4" md="3">
+        <MudPaper Class="pa-4" Style="height: calc(100vh - 100px); overflow-y: auto;">
+            <MudTreeView T=ExecutionPointer Hover="true" @bind-SelectedValue="_selectedPointer">
+                <MudTreeViewItem Text="@($"{_instance.WorkflowDefinitionId} ({_instance.Id})")" Expanded>
+                    @foreach (var step in _instance.ExecutionPointers)
+                    {
+                        <MudTreeViewItem Value="@step">
+                            <Content>
+                                <MudTooltip Text="@step.Status.ToString()">
+                                    <MudIcon Icon="@GetStatusIcon(step.Status)" Color="@GetStatusColor(step.Status)" Class="ml-0 mr-2" />
+                                </MudTooltip>
+                                <MudText>@step.StepId - @(step.StepName ?? "Anonymous step")</MudText>
+                            </Content>
+                        </MudTreeViewItem>
+                    }
+                </MudTreeViewItem>
+            </MudTreeView>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="8" md="9">
+        <MudPaper Class="pa-4" Style="height: calc(100vh - 100px); overflow-y: auto;">
+            @if (_selectedPointer != null)
+            {
+                <MudText Typo="Typo.h6" Class="mb-4">Execution Pointer Details</MudText>
+                <pre style="background-color: #f5f5f5; padding: 16px; border-radius: 4px; overflow-x: auto;">@GetJsonDetails(_selectedPointer)</pre>
+            }
+            else
+            {
+                <MudText Typo="Typo.body1" Color="Color.Secondary">Select an execution pointer to view details</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
+
+    WorkflowInstance _instance = null!;
+    ExecutionPointer? _selectedPointer;
+
+    System.Timers.Timer _timer = new(2_000);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshData();
+
+        _timer.Elapsed += async (sender, e) =>
+        {
+            await RefreshData();
+
+            
+            if (_instance.CompleteTime != null)
+            {
+                _timer.Stop();
+            }
+
+            await InvokeAsync(StateHasChanged);
+        };
+
+        _timer.Start();
+    }
+
+    private async Task RefreshData()
+    {
+        var instance = await WorkflowMonitorService.GetWorkflowInstanceAsync(Id);
+        _instance = instance ?? throw new InvalidOperationException($"Workflow instance '{Id}' not found.");
+    }
+
+    private string GetJsonDetails(ExecutionPointer pointer)
+    {
+        return JsonSerializer.Serialize(pointer, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+    }
+
+    private string GetStatusIcon(PointerStatus status)
+    {
+        return status switch
+        {
+            PointerStatus.Complete => Icons.Material.Filled.CheckCircle,
+            PointerStatus.Running => Icons.Material.Filled.PlayCircle,
+            PointerStatus.WaitingForEvent => Icons.Material.Filled.Schedule,
+            PointerStatus.Sleeping => Icons.Material.Filled.Bedtime,
+            PointerStatus.Failed => Icons.Material.Filled.Error,
+            PointerStatus.Cancelled => Icons.Material.Filled.Cancel,
+            PointerStatus.Compensated => Icons.Material.Filled.Undo,
+            _ => Icons.Material.Filled.HelpOutline
+        };
+    }
+
+    private Color GetStatusColor(PointerStatus status)
+    {
+        return status switch
+        {
+            PointerStatus.Complete => Color.Success,
+            PointerStatus.Running => Color.Info,
+            PointerStatus.WaitingForEvent => Color.Warning,
+            PointerStatus.Sleeping => Color.Default,
+            PointerStatus.Failed => Color.Error,
+            PointerStatus.Cancelled => Color.Dark,
+            PointerStatus.Compensated => Color.Secondary,
+            _ => Color.Default
+        };
+    }
+
+    public void Dispose()
+    {
+        _timer.Stop();
+        _timer.Dispose();
+    }
+
+}

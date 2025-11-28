@@ -1,5 +1,6 @@
 ﻿using ConcurrentCollections;
-using System.Collections.Concurrent;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -15,8 +16,8 @@ public class WorkflowTerminateErrorHandler(
 
     private async void WorkflowHost_OnStepError(WorkflowInstance workflow, WorkflowStep step, Exception exception)
     {
-            if (exception is WorkflowAbortException)
-                _workflowIdsToTerminate.Add(workflow.Id);
+        if (exception is WorkflowAbortException)
+            _workflowIdsToTerminate.Add(workflow.Id);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

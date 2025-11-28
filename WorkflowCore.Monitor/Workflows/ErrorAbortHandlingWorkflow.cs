@@ -11,7 +11,11 @@ public class ErrorAbortHandlingWorkflow : IWorkflow
     public void Build(IWorkflowBuilder<object> builder)
     {
         builder
-            .StartWith(ctx => ExecutionResult.Next()).Name("Start")
+            .StartWith(ctx =>
+            {
+                ctx.Workflow.Description = "Abort on error example.";
+                return ExecutionResult.Next();
+            }).Name("Start")
             // I use default error handling settings.
             // But the workflow will terminate on WorkflowAbortException.
             // Terminate will be done using WorkflowTerminateErrorHandler.

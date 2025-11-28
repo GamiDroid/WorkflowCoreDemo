@@ -12,21 +12,21 @@ public sealed class SimpleWorkflow : IWorkflow
     public void Build(IWorkflowBuilder<object> builder)
     {
         builder
-            .StartWith(ctx => ExecutionResult.Next())
-            .Delay(d => TimeSpan.FromSeconds(2))
+            .StartWith(ctx => ExecutionResult.Next()).Name("Start")
+            .Delay(d => TimeSpan.FromSeconds(2)).Name("Delay 2s")
             .Parallel()
             .Do(b => b
                 .Then<ConsoleWriteStep>(setup => setup
                     .Id("ConsoleWriteStep#0")
                     .Input((s, d) => s.Delay = 2500)
                  )
-                .Delay(d => TimeSpan.FromSeconds(10))
+                .Delay(d => TimeSpan.FromSeconds(10)).Name("Delay 10s")
                 .Then<ConsoleWriteStep>(setup => setup
                     .Id("ConsoleWriteStep#0")
                     .Input((s, d) => s.Delay = 1000)
                  )
             )
-            .Join();
+            .Join().Name("Join");
     }
 
     private class ConsoleWriteStep : StepBodyAsync

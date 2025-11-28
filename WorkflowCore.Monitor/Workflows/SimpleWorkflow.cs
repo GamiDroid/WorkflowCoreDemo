@@ -1,5 +1,4 @@
-﻿using WorkflowCore.AspNetCore;
-using WorkflowCore.Interface;
+﻿using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
 namespace WorkflowCore.Monitor.Workflows;

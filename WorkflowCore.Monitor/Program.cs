@@ -15,6 +15,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddWorkflow(setup =>
 {
     setup.AddScoped<WorkflowMonitorService>();
+    setup.AddHostedService<WorkflowTerminateErrorHandler>();
 });
 
 var app = builder.Build();
@@ -39,6 +40,8 @@ app.MapRazorComponents<App>()
 app.UseWorkflow(r =>
 {
     r.RegisterWorkflow<SimpleWorkflow>();
+    r.RegisterWorkflow<ErrorRetryHandlingWorkflow>();
+    r.RegisterWorkflow<ErrorAbortHandlingWorkflow>();
 });
 
 app.Run();

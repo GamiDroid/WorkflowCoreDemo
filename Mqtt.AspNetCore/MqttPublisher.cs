@@ -2,7 +2,7 @@
 using MQTTnet.Exceptions;
 using System.Text.Json;
 
-namespace WorkflowCore.Monitor.Mqtt;
+namespace Mqtt.AspNetCore;
 
 public interface IMqttPublisher
 {

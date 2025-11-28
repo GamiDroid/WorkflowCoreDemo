@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowCore.Monitor", "WorkflowCore.Monitor\WorkflowCore.Monitor.csproj", "{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowCore", "workflow-core\src\WorkflowCore\WorkflowCore.csproj", "{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Folder", "Solution Folder", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowCore.Monitor", "WorkflowCore.Monitor\WorkflowCore.Monitor.csproj", "{93305FDA-59BD-6565-EAC5-D30B40DA904B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowCore.AspNetCore", "WorkflowCore.AspNetCore\WorkflowCore.AspNetCore.csproj", "{F0742878-D974-43B9-BB14-4438860464A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mqtt.AspNetCore", "Mqtt.AspNetCore\Mqtt.AspNetCore.csproj", "{967E0769-C66A-8205-EA11-620F7980ADB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,14 +19,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19707D8A-FAE3-4C7C-8E7E-8FA7D52401DE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDF70FB3-FCE0-4635-33B2-04FF9527C8BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93305FDA-59BD-6565-EAC5-D30B40DA904B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93305FDA-59BD-6565-EAC5-D30B40DA904B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93305FDA-59BD-6565-EAC5-D30B40DA904B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93305FDA-59BD-6565-EAC5-D30B40DA904B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0742878-D974-43B9-BB14-4438860464A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0742878-D974-43B9-BB14-4438860464A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0742878-D974-43B9-BB14-4438860464A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0742878-D974-43B9-BB14-4438860464A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{967E0769-C66A-8205-EA11-620F7980ADB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{967E0769-C66A-8205-EA11-620F7980ADB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{967E0769-C66A-8205-EA11-620F7980ADB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{967E0769-C66A-8205-EA11-620F7980ADB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

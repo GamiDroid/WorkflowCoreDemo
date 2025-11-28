@@ -1,4 +1,4 @@
-﻿namespace WorkflowCore.Monitor.Workflows;
+﻿namespace WorkflowCore.AspNetCore;
 
 public class BaseWorkflowData
 {

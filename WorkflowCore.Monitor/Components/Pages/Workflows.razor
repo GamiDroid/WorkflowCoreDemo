@@ -1,0 +1,42 @@
+﻿@page "/workflows"
+@using WorkflowCore.Models
+
+@inject WorkflowCore.AspNetCore.WorkflowMonitorService WorkflowMonitorService
+
+<PageTitle>Workflows</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Workflows</MudText>
+
+<MudDataGrid Items="@_workflowDefinitions">
+    <Columns>
+        <PropertyColumn Property="x => x.Id" Title="#" />
+        <PropertyColumn Property="x => x.Version" />
+        <PropertyColumn Property="x => x.Description" />
+        <PropertyColumn Property="x => x.Steps.Count" Title="Steps" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudStack Row>
+                    <MudButton OnClick="() => Start(context.Item)" Variant="Variant.Filled" Color="Color.Secondary">Start</MudButton>
+                    <MudButton Href="@($"workflows/{context.Item.Id}")" StartIcon="@Icons.Material.Filled.MoreVert" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+@code {
+
+    List<WorkflowDefinition>? _workflowDefinitions;
+
+    protected override void OnInitialized()
+    {
+        _workflowDefinitions = WorkflowMonitorService.GetRegisteredWorkflows().ToList();
+    }
+
+    private async Task Start(WorkflowDefinition definition)
+    {
+        var workflowId = 
+            await WorkflowMonitorService.StartWorkflow(definition.Id, definition.Version);
+        Console.WriteLine($"Worflow {definition.Id}:v{definition.Version} ({workflowId}) Started.");
+    }
+}

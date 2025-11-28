@@ -1,6 +1,6 @@
 ﻿using MQTTnet;
 
-namespace WorkflowCore.Monitor.Mqtt;
+namespace Mqtt.AspNetCore;
 
 public static class MqttExtensions
 {

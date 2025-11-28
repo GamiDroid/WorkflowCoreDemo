@@ -1,5 +1,4 @@
-﻿
-namespace WorkflowCore.Monitor.Mqtt;
+﻿namespace Mqtt.AspNetCore;
 
 public class MqttConnectionHost(IMqttConnection mqtt) : IHostedService
 {

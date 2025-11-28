@@ -1,0 +1,49 @@
+﻿@page "/workflows/{Id}"
+@using WorkflowCore.Models
+
+@inject WorkflowCore.AspNetCore.WorkflowMonitorService WorkflowMonitorService
+
+<PageTitle>Workflow @Id</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Workflow <b>@Id</b></MudText>
+
+<MudDataGrid Items="@_instances">
+    <Columns>
+        <PropertyColumn Property="x => x.Id" Title="#" />
+        <PropertyColumn Property="x => x.Status" />
+        <PropertyColumn Property="x => x.CreateTime" Title="Created" />
+        <PropertyColumn Property="x => x.CompleteTime" Title="Completed" />
+        <PropertyColumn Property="x => x.Description" />
+        @* <TemplateColumn>
+            <CellTemplate>
+                <MudStack Row>
+                    <MudButton OnClick="() => Start(context.Item)" Variant="Variant.Filled" Color="Color.Secondary">Start</MudButton>
+                    <MudButton Href="@($"workflows/{context.Item.Id}")" StartIcon="@Icons.Material.Filled.MoreVert" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn> *@
+    </Columns>
+</MudDataGrid>
+
+@code {
+
+    [Parameter]
+    public string? Id { get; set; }
+
+    private List<WorkflowInstance> _instances = new();
+
+    PeriodicTimer _timer = new(TimeSpan.FromSeconds(5));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshData();
+
+        
+    }
+
+    private async Task RefreshData()
+    {
+        var instances = await WorkflowMonitorService.GetWorkflowInstances();
+        _instances = instances.Where(i => i.WorkflowDefinitionId == Id).ToList();
+    }
+}

@@ -1,6 +1,9 @@
-﻿using WorkflowCore.Interface;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using WorkflowCore.AspNetCore;
+using WorkflowCore.Interface;
 
-namespace WorkflowCore.Monitor.Workflows;
+namespace WorkflowCore.AspNetCore;
 
 public static class WorkflowExtensions
 {
@@ -13,11 +16,11 @@ public static class WorkflowExtensions
         return services;
     }
 
-    public static void UseWorkflow(this IHost app)
+    public static void UseWorkflow(this IHost app, Action<IWorkflowController> registerAction)
     {
         var workflowHost = app.Services.GetRequiredService<IWorkflowHost>();
 
-        workflowHost.RegisterWorkflow<SimpleWorkflow, ChangeoverData>();
+        registerAction(workflowHost);
 
         workflowHost.Start();
     }

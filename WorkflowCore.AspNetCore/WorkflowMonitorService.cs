@@ -1,12 +1,14 @@
 ﻿using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
-namespace WorkflowCore.Monitor.Services;
+namespace WorkflowCore.AspNetCore;
 
 public class WorkflowMonitorService(
+    IWorkflowHost host,
     IWorkflowRegistry registry,
     IWorkflowRepository repository)
 {
+    private readonly IWorkflowHost _host = host;
     private readonly IWorkflowRegistry _registry = registry;
     private readonly IWorkflowRepository _repository = repository;
 
@@ -23,5 +25,10 @@ public class WorkflowMonitorService(
     public IEnumerable<WorkflowDefinition> GetRegisteredWorkflows()
     {
         return _registry.GetAllDefinitions();
+    }
+
+    public Task<string> StartWorkflow(string workflowDefinitionName, int version)
+    {
+        return _host.StartWorkflow(workflowDefinitionName, version);
     }
 }

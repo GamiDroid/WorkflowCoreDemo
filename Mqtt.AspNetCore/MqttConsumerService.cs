@@ -1,6 +1,6 @@
 ﻿using MQTTnet;
 
-namespace WorkflowCore.Monitor.Mqtt;
+namespace Mqtt.AspNetCore;
 
 public interface IMqttConsumerService
 {

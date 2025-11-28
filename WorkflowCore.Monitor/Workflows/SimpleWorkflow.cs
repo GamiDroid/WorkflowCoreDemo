@@ -1,50 +1,45 @@
-﻿using WorkflowCore.Interface;
+﻿using WorkflowCore.AspNetCore;
+using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
 namespace WorkflowCore.Monitor.Workflows;
 
-public sealed class SimpleWorkflow : IWorkflow<ChangeoverData>
+public sealed class SimpleWorkflow : IWorkflow
 {
     public string Id => nameof(SimpleWorkflow);
     public int Version => 1;
 
-    public void Build(IWorkflowBuilder<ChangeoverData> builder)
+    public void Build(IWorkflowBuilder<object> builder)
     {
         builder
             .StartWith(ctx => ExecutionResult.Next())
             .Delay(d => TimeSpan.FromSeconds(2))
             .Parallel()
             .Do(b => b
-
-                .Then<ConsoleWriteStep>(setup =>
-                 {
-                     setup.Id("ConsoleWriteStep#0");
-                 }).CancelCondition(d => d.IsStepExecuted("ConsoleWriteStep#0"), proceedAfterCancel: true)
+                .Then<ConsoleWriteStep>(setup => setup
+                    .Id("ConsoleWriteStep#0")
+                    .Input((s, d) => s.Delay = 2500)
+                 )
                 .Delay(d => TimeSpan.FromSeconds(10))
-                .Then<ConsoleWriteStep>(setup =>
-                {
-                    setup.Id("ConsoleWriteStep#1");
-                }).CancelCondition(d => d.IsStepExecuted("ConsoleWriteStep#1"), proceedAfterCancel: true)
+                .Then<ConsoleWriteStep>(setup => setup
+                    .Id("ConsoleWriteStep#0")
+                    .Input((s, d) => s.Delay = 1000)
+                 )
             )
             .Join();
     }
 
     private class ConsoleWriteStep : StepBodyAsync
     {
+        public int Delay { get; set; }
+
         public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
-            Console.WriteLine("#####################");
+            Console.WriteLine(DateTime.UtcNow);
 
-            await Task.Delay(5_000);
+            await Task.Delay(Delay);
 
             return ExecutionResult.Next();
         }
     }
-}
-
-public class ChangeoverData : BaseWorkflowData
-{
-    public int ProductionId { get; set; }
-    public string? BatchId { get; set; }
-    public string? PrinterId { get; set; }
 }

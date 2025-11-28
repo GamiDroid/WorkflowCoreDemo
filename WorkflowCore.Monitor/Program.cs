@@ -15,7 +15,6 @@ builder.Services.AddRazorComponents()
 builder.Services.AddWorkflow(setup =>
 {
     setup.AddScoped<WorkflowMonitorService>();
-    setup.AddHostedService<WorkflowTerminateErrorHandler>();
 });
 
 var app = builder.Build();
@@ -42,6 +41,7 @@ app.UseWorkflow(r =>
     r.RegisterWorkflow<SimpleWorkflow>();
     r.RegisterWorkflow<ErrorRetryHandlingWorkflow>();
     r.RegisterWorkflow<ErrorAbortHandlingWorkflow>();
+    r.RegisterWorkflow<StepsProgressWorkflow, StepsProgress>();
 });
 
 app.Run();

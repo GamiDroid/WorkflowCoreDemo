@@ -1,6 +1,7 @@
 ﻿@page "/workflows"
 
 @inject WorkflowMonitorService WorkflowMonitorService
+@inject ISnackbar Snackbar
 
 <PageTitle>Workflows</PageTitle>
 
@@ -25,7 +26,7 @@
 
 @code {
 
-    List<WorkflowDefinition>? _workflowDefinitions;
+        List<WorkflowDefinition>? _workflowDefinitions;
 
     protected override void OnInitialized()
     {
@@ -36,6 +37,6 @@
     {
         var workflowId = 
             await WorkflowMonitorService.StartWorkflowAsync(definition.Id, definition.Version);
-        Console.WriteLine($"Worflow {definition.Id}:v{definition.Version} ({workflowId}) Started.");
+        Snackbar.Add($"Worflow {definition.Id}:v{definition.Version} ({workflowId}) Started.", Severity.Success);
     }
 }

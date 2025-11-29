@@ -27,9 +27,9 @@ public class WorkflowMonitorService(
         return _registry.GetAllDefinitions();
     }
 
-    public Task<string> StartWorkflowAsync(string workflowDefinitionName, int version)
+    public Task<string> StartWorkflowAsync(string workflowDefinitionName, int version, object? data = null)
     {
-        return _host.StartWorkflow(workflowDefinitionName, version);
+        return _host.StartWorkflow(workflowDefinitionName, version, data);
     }
 
     public Task<bool> TerminateWorkflowAsync(string workflowId)

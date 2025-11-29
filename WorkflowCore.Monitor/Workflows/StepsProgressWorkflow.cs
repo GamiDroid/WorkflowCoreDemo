@@ -16,6 +16,8 @@ public class StepsProgress
     }
 
     public ConcurrentDictionary<string, PointerStatus> Steps { get; set; } = [];
+
+    public string? PrdNr { get; set; }
 }
 
 public class StepsProgressWorkflow : IWorkflow<StepsProgress>

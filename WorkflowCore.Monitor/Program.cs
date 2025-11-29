@@ -15,6 +15,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddWorkflow(setup =>
 {
     setup.AddScoped<WorkflowMonitorService>();
+    setup.AddWorkflowStepsFromAssembly();
 });
 
 var app = builder.Build();

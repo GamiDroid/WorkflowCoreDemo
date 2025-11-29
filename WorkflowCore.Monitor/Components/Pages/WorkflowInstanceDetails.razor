@@ -3,12 +3,13 @@
 @implements IDisposable
 
 @inject WorkflowMonitorService WorkflowMonitorService
+@inject ISnackbar Snackbar
 
 <MudGrid>
     <MudItem xs="12" sm="4" md="3">
         <MudPaper Class="pa-4" Style="height: calc(100vh - 100px); overflow-y: auto;">
             <MudTreeView T=ExecutionPointer Hover="true" @bind-SelectedValue="_selectedPointer" SelectionMode="SelectionMode.ToggleSelection">
-                <MudTreeViewItem Text="@($"{_instance.WorkflowDefinitionId} ({_instance.Id})")" Expanded Icon="@GetWorkflowStatusIcon(_instance.Status)" IconColor="@GetWorkflowStatusColor(_instance.Status)">
+                <MudTreeViewItem Text="@_instance.Display()" Expanded Icon="@GetWorkflowStatusIcon(_instance.Status)" IconColor="@GetWorkflowStatusColor(_instance.Status)">
                     @foreach (var step in _instance.ExecutionPointers)
                     {
                         <MudTreeViewItem Value="@step">
@@ -26,6 +27,16 @@
     </MudItem>
     <MudItem xs="12" sm="8" md="9">
         <MudPaper Class="pa-4" Style="height: calc(100vh - 100px); overflow-y: auto;">
+            <MudToolBar Dense="true" Class="mb-4">
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Error" 
+                           StartIcon="@Icons.Material.Filled.Stop"
+                           OnClick="Stop"
+                           Disabled="@_instanceIsCompleted">
+                    Stop
+                </MudButton>
+            </MudToolBar>
+            
             @if (_selectedPointer is not null)
             {
                 <MudText Typo="Typo.h6" Class="mb-4">Execution Pointer Details</MudText>
@@ -80,6 +91,20 @@
     {
         var instance = await WorkflowMonitorService.GetWorkflowInstanceAsync(Id);
         _instance = instance ?? throw new InvalidOperationException($"Workflow instance '{Id}' not found.");
+    }
+
+    private async Task Stop()
+    {
+        var terminated = await WorkflowMonitorService.TerminateWorkflowAsync(Id);
+
+        if (!terminated)
+        {
+            Snackbar.Add($"Worflow {_instance.Display()} coult not be terminated.", Severity.Error);
+            return;
+        }
+
+        Snackbar.Add($"Worflow {_instance.Display()} terminated.", Severity.Warning);
+        await RefreshData();
     }
 
     private string GetJsonDetails(object? data)

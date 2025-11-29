@@ -1,14 +1,20 @@
-﻿@page "/workflows/{Id}"
+﻿@page "/workflows/{Id}/{Version?}"
 
 @inject WorkflowMonitorService WorkflowMonitorService
+@inject ISnackbar Snackbar
 
 <PageTitle>Workflow @Id</PageTitle>
 
 <MudText Typo="Typo.h3" GutterBottom="true">Workflow <b>@Id</b></MudText>
 
 <MudDataGrid Items="@_instances">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Workflow Instances</MudText>
+        <MudSpacer />
+        <MudButton OnClick="Start" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">Start</MudButton>
+    </ToolBarContent>
     <Columns>
-        <PropertyColumn Property="x => x.Id" Title="#" />
+        <PropertyColumn Property="x => x.Id.Substring(0, 8)" Title="#" />
         <PropertyColumn Property="x => x.Status" />
         <PropertyColumn Property="x => x.CreateTime" Title="Created" />
         <PropertyColumn Property="x => x.CompleteTime" Title="Completed" />
@@ -16,6 +22,7 @@
         <TemplateColumn>
             <CellTemplate>
                 <MudStack Row>
+                    <MudButton OnClick="_ => Stop(context.Item.Id)" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Cancel">Stop</MudButton>
                     <MudIconButton Href="@($"workflows/instances/{context.Item.Id}")" Icon="@Icons.Material.Filled.MoreVert" />
                 </MudStack>
             </CellTemplate>
@@ -26,7 +33,12 @@
 @code {
 
     [Parameter]
-    public string? Id { get; set; }
+    public string Id { get; set; } = string.Empty;
+
+    [Parameter]
+    public int? Version { get; set; }
+
+    private int _version => Version ?? 1;
 
     private List<WorkflowInstance> _instances = new();
 
@@ -35,13 +47,34 @@
     protected override async Task OnInitializedAsync()
     {
         await RefreshData();
-
-        
     }
 
     private async Task RefreshData()
     {
         var instances = await WorkflowMonitorService.GetWorkflowInstancesAsync();
-        _instances = instances.Where(i => i.WorkflowDefinitionId == Id).ToList();
+        _instances = instances.Where(i => i.WorkflowDefinitionId == Id && i.Version == _version).ToList();
+    }
+
+    private async Task Start()
+    {
+        var workflowId =
+            await WorkflowMonitorService.StartWorkflowAsync(Id, _version);
+        Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(Id, _version, workflowId)} started.", Severity.Success);
+
+        await RefreshData();
+    }
+
+    private async Task Stop(string workflowId)
+    {
+        var terminated = await WorkflowMonitorService.TerminateWorkflowAsync(workflowId);
+
+        if (!terminated)
+        {
+            Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(Id, _version, workflowId)} coult not be terminated.", Severity.Error);
+            return;
+        }
+        
+        Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(Id, _version, workflowId)} terminated.", Severity.Warning);
+        await RefreshData();
     }
 }

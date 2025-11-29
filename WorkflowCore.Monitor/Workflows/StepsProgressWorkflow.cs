@@ -29,10 +29,12 @@ public class StepsProgressWorkflow : IWorkflow<StepsProgress>
             .StartWith(_ => ExecutionResult.Next()).Name("Start")
 
             .Then<ValidateStep>(b => b
-                .Output((s, d) => d.Steps["validate"] = PointerStatus.Complete)
+                .Output((s, d) => d.Steps["validate"] = s.IsValid ? PointerStatus.Complete : PointerStatus.Failed)
             )
 
             .Then<CreateBatchStep>(b => b
+                .CancelCondition(d => d.Steps["validate"] != PointerStatus.Complete)
+                
                 .Output((s, d) => d.Steps["create_batch"] = PointerStatus.Complete)
             )
 
@@ -51,8 +53,10 @@ public class StepsProgressWorkflow : IWorkflow<StepsProgress>
             .Then(_ => ExecutionResult.Next()).Name("End");
     }
 
-    public class ValidateStep : IStepBody
+    public class ValidateStep(IConfiguration config) : IStepBody
     {
+        public bool IsValid => config.GetValue<bool>("StepsProgressWorkflow:Valid");
+
         public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             await Task.Delay(3_000);

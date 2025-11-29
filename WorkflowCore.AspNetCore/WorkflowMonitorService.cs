@@ -31,4 +31,9 @@ public class WorkflowMonitorService(
     {
         return _host.StartWorkflow(workflowDefinitionName, version);
     }
+
+    public Task<bool> TerminateWorkflowAsync(string workflowId)
+    {
+        return _host.TerminateWorkflow(workflowId);
+    }
 }

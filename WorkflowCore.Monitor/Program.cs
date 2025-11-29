@@ -40,6 +40,7 @@ app.MapRazorComponents<App>()
 app.UseWorkflow(r =>
 {
     r.RegisterWorkflow<SimpleWorkflow>();
+    r.RegisterWorkflow<LongDelayWorkflow>();
     r.RegisterWorkflow<ErrorRetryHandlingWorkflow>();
     r.RegisterWorkflow<ErrorAbortHandlingWorkflow>();
     r.RegisterWorkflow<StepsProgressWorkflow, StepsProgress>();

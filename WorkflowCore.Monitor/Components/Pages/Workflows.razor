@@ -37,6 +37,6 @@
     {
         var workflowId = 
             await WorkflowMonitorService.StartWorkflowAsync(definition.Id, definition.Version);
-        Snackbar.Add($"Worflow {definition.Id}:v{definition.Version} ({workflowId}) Started.", Severity.Success);
+        Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(definition.Id, definition.Version, workflowId)} started.", Severity.Success);
     }
 }

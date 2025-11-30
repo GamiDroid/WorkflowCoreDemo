@@ -15,6 +15,9 @@ public static class WorkflowExtensions
 
         services.AddHostedService<WorkflowTerminateErrorHandler>();
 
+        services.AddWorkflowMiddleware<PersistWorkflowPostMiddleware>();
+        services.AddWorkflowStepMiddleware<PersistWorkflowStepMiddleware>();
+
         setupAction(services);
 
         return services;

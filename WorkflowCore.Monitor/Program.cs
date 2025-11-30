@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddWorkflow(setup =>
 {
+    setup.AddScoped<IWorkflowInstancePersistence, WorkflowInstanceMqttPersistence>();
     setup.AddScoped<WorkflowMonitorService>();
     setup.AddWorkflowStepsFromAssembly();
 });
@@ -45,6 +46,8 @@ app.MapRazorComponents<App>()
 
 app.UseWorkflow(r =>
 {
+    
+
     r.RegisterWorkflow<SimpleWorkflow>();
     r.RegisterWorkflow<LongDelayWorkflow>();
     r.RegisterWorkflow<ErrorRetryHandlingWorkflow>();

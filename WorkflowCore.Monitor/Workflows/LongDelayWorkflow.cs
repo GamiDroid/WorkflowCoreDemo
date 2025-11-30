@@ -11,7 +11,11 @@ public class LongDelayWorkflow : IWorkflow
     public void Build(IWorkflowBuilder<object> builder)
     {
         builder
-            .StartWith(_ => ExecutionResult.Next()).Name("Start")
+            .StartWith(ctx =>
+            {
+                ctx.Workflow.Reference = Guid.NewGuid().ToString()[..8];
+                return ExecutionResult.Next();
+            }).Name("Start")
             .Delay(_ => TimeSpan.FromSeconds(20)).Name("Long Delay")
             .Then(_ => ExecutionResult.Next()).Name("End");
     }

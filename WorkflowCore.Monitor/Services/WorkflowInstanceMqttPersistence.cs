@@ -8,10 +8,13 @@ public class WorkflowInstanceMqttPersistence(IMqttPublisher mqttPublisher) : IWo
 {
     private readonly IMqttPublisher _mqttPublisher = mqttPublisher;
 
-    public Task PersistAsync(WorkflowInstance workflow, CancellationToken cancellationToken = default)
+    public async ValueTask PersistAsync(WorkflowInstance workflow, CancellationToken cancellationToken = default)
     {
-        return _mqttPublisher.PublishAsync(
-            topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/{workflow.Id}", 
+        if (string.IsNullOrEmpty(workflow.Reference))
+            return;
+
+        await _mqttPublisher.PublishAsync(
+            topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/{workflow.Reference[..8]}", 
             message: workflow,
             retained: true,
             expiryTime: TimeSpan.FromMinutes(15),

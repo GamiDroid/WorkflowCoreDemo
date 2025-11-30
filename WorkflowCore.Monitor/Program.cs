@@ -4,6 +4,7 @@ using WorkflowCore.AspNetCore;
 using WorkflowCore.Monitor.Components;
 using WorkflowCore.Monitor.Services;
 using WorkflowCore.Monitor.Workflows;
+using WorkflowCore.Monitor.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,13 +47,14 @@ app.MapRazorComponents<App>()
 
 app.UseWorkflow(r =>
 {
-    
-
     r.RegisterWorkflow<SimpleWorkflow>();
     r.RegisterWorkflow<LongDelayWorkflow>();
     r.RegisterWorkflow<ErrorRetryHandlingWorkflow>();
     r.RegisterWorkflow<ErrorAbortHandlingWorkflow>();
     r.RegisterWorkflow<StepsProgressWorkflow, StepsProgress>();
 });
+
+var mqttConsumerService = app.Services.GetRequiredService<IMqttConnection>();
+await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/+");
 
 app.Run();

@@ -1,4 +1,5 @@
-﻿using MQTTnet;
+﻿using Microsoft.Extensions.DependencyInjection;
+using MQTTnet;
 
 namespace Mqtt.AspNetCore;
 

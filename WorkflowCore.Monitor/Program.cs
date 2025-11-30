@@ -1,4 +1,5 @@
 using MudBlazor.Services;
+using Mqtt.AspNetCore;
 using WorkflowCore.AspNetCore;
 using WorkflowCore.Monitor.Components;
 using WorkflowCore.Monitor.Services;
@@ -18,6 +19,8 @@ builder.Services.AddWorkflow(setup =>
     setup.AddScoped<WorkflowMonitorService>();
     setup.AddWorkflowStepsFromAssembly();
 });
+
+builder.Services.AddMqtt();
 
 builder.Services.AddScoped<WorkflowInstanceService>();
 

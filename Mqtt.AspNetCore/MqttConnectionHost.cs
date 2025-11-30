@@ -1,4 +1,6 @@
-﻿namespace Mqtt.AspNetCore;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace Mqtt.AspNetCore;
 
 public class MqttConnectionHost(IMqttConnection mqtt) : IHostedService
 {

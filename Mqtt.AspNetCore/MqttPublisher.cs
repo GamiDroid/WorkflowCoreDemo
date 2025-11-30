@@ -19,7 +19,7 @@ public class MqttPublisher(IMqttConnection mqtt) : IMqttPublisher
             .WithContentType("application/json")
             .WithTopic(topic)
             .WithRetainFlag(retained)
-            .WithMessageExpiryInterval((uint)TimeSpan.FromDays(14).Seconds)
+            .WithMessageExpiryInterval((uint)TimeSpan.FromMinutes(15).Seconds)
             .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
 
         if (expiryTime is not null)

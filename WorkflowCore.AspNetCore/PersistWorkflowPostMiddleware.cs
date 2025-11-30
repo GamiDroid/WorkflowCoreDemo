@@ -17,4 +17,3 @@ internal class PersistWorkflowPostMiddleware(
         await _persistence.PersistAsync(workflow);
     }
 }
-

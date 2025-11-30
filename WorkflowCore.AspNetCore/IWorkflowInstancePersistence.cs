@@ -4,5 +4,5 @@ namespace WorkflowCore.AspNetCore;
 
 public interface IWorkflowInstancePersistence
 {
-    Task PersistAsync(WorkflowInstance workflow, CancellationToken cancellationToken = default);
+    ValueTask PersistAsync(WorkflowInstance workflow, CancellationToken cancellationToken = default);
 }

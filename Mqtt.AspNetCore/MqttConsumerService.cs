@@ -7,6 +7,7 @@ namespace Mqtt.AspNetCore;
 public interface IMqttConsumerService
 {
     void AddConsumer<T>(string topic) where T : IMqttConsumer;
+    IEnumerable<(string Topic, Type ConsumerType)> GetConsumers();
     Task HandleConsumerAsync(string topic, MqttApplicationMessageReceivedEventArgs message);
 }
 
@@ -24,6 +25,8 @@ public class MqttConsumerService(ILogger<MqttConsumerService> logger, IServiceSc
 
         _consumers[topic] = typeof(T);
     }
+
+    public IEnumerable<(string Topic, Type ConsumerType)> GetConsumers() => _consumers.Select(kv => (kv.Key, kv.Value));
 
     public Task HandleConsumerAsync(string topic, MqttApplicationMessageReceivedEventArgs message)
     {

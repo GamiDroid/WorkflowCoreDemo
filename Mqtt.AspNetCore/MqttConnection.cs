@@ -35,6 +35,14 @@ public class MqttConnection : IMqttConnection
 
     private async Task OnConnectedAsync(MqttClientConnectedEventArgs args)
     {
+        foreach (var (topic, _) in _consumerService.GetConsumers())
+        {
+            var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
+                .WithTopicFilter(topic)
+                .Build();
+
+            await _mqtt.SubscribeAsync(subscribeOptions);
+        }
     }
 
     private Task OnApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs arg)

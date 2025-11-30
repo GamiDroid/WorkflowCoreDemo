@@ -1,6 +1,7 @@
 using MudBlazor.Services;
 using WorkflowCore.AspNetCore;
 using WorkflowCore.Monitor.Components;
+using WorkflowCore.Monitor.Services;
 using WorkflowCore.Monitor.Workflows;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,8 @@ builder.Services.AddWorkflow(setup =>
     setup.AddScoped<WorkflowMonitorService>();
     setup.AddWorkflowStepsFromAssembly();
 });
+
+builder.Services.AddScoped<WorkflowInstanceService>();
 
 var app = builder.Build();
 

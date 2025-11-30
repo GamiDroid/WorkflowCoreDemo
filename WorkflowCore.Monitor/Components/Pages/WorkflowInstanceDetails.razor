@@ -2,8 +2,8 @@
 @using System.Text.Json
 @implements IDisposable
 
+@inject Services.WorkflowInstanceService WorkflowInstanceService
 @inject WorkflowMonitorService WorkflowMonitorService
-@inject ISnackbar Snackbar
 
 <MudGrid>
     <MudItem xs="12" sm="4" md="3">
@@ -95,16 +95,10 @@
 
     private async Task Stop()
     {
-        var terminated = await WorkflowMonitorService.TerminateWorkflowAsync(Id);
+        var stopped = await WorkflowInstanceService.StopAsync(_instance);
 
-        if (!terminated)
-        {
-            Snackbar.Add($"Worflow {_instance.Display()} coult not be terminated.", Severity.Error);
-            return;
-        }
-
-        Snackbar.Add($"Worflow {_instance.Display()} terminated.", Severity.Warning);
-        await RefreshData();
+        if (stopped)
+            await RefreshData();
     }
 
     private string GetJsonDetails(object? data)

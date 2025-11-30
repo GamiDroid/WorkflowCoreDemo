@@ -1,8 +1,7 @@
 ﻿@page "/workflows"
 
+@inject Services.WorkflowInstanceService WorkflowInstanceService
 @inject WorkflowMonitorService WorkflowMonitorService
-@inject ISnackbar Snackbar
-@inject IDialogService DialogService
 
 <PageTitle>Workflows</PageTitle>
 
@@ -34,33 +33,8 @@
         _workflowDefinitions = WorkflowMonitorService.GetRegisteredWorkflows().ToList();
     }
 
-    private async Task Start(WorkflowDefinition def)
+    private Task Start(WorkflowDefinition def)
     {
-        object? obj = null;
-
-        if (def.Id == "StepsProgressWorkflow" && def.Version == 1)
-        {
-            var options = new DialogOptions { CloseOnEscapeKey = true };
-
-            var wData = new Monitor.Workflows.StepsProgress();
-            var parameters = new DialogParameters
-            {
-                ["Arguments"] = wData
-            };
-
-            var dRef = await DialogService.ShowAsync<WorkflowArgsDialog>("Arguments", parameters, options);
-            var dResult = await dRef.Result;
-
-            if (dResult!.Canceled)
-            {
-                return;
-            }
-
-            obj = dResult.Data;
-        }
-
-        var workflowId =
-            await WorkflowMonitorService.StartWorkflowAsync(def.Id, def.Version, obj);
-        Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(def.Id, def.Version, workflowId)} started.", Severity.Success);
+        return WorkflowInstanceService.StartAsync(def.Id, def.Version);
     }
 }

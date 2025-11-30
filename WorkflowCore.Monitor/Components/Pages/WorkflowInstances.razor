@@ -1,7 +1,7 @@
 ﻿@page "/workflows/{Id}/{Version?}"
 
+@inject Services.WorkflowInstanceService WorkflowInstanceService
 @inject WorkflowMonitorService WorkflowMonitorService
-@inject ISnackbar Snackbar
 
 <PageTitle>Workflow @Id</PageTitle>
 
@@ -22,7 +22,7 @@
         <TemplateColumn>
             <CellTemplate>
                 <MudStack Row>
-                    <MudButton OnClick="_ => Stop(context.Item.Id)" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Cancel">Stop</MudButton>
+                    <MudButton OnClick="_ => Stop(context.Item)" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Cancel">Stop</MudButton>
                     <MudIconButton Href="@($"workflows/instances/{context.Item.Id}")" Icon="@Icons.Material.Filled.MoreVert" />
                 </MudStack>
             </CellTemplate>
@@ -57,24 +57,16 @@
 
     private async Task Start()
     {
-        var workflowId =
-            await WorkflowMonitorService.StartWorkflowAsync(Id, _version);
-        Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(Id, _version, workflowId)} started.", Severity.Success);
+        await WorkflowInstanceService.StartAsync(Id, _version);
 
         await RefreshData();
     }
 
-    private async Task Stop(string workflowId)
+    private async Task Stop(WorkflowInstance instance)
     {
-        var terminated = await WorkflowMonitorService.TerminateWorkflowAsync(workflowId);
-
-        if (!terminated)
-        {
-            Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(Id, _version, workflowId)} coult not be terminated.", Severity.Error);
-            return;
-        }
+        var stopped = await WorkflowInstanceService.StopAsync(instance);
         
-        Snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(Id, _version, workflowId)} terminated.", Severity.Warning);
-        await RefreshData();
+        if (stopped)
+            await RefreshData();
     }
 }

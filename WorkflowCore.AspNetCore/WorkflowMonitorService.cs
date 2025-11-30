@@ -14,7 +14,9 @@ public class WorkflowMonitorService(
 
     public Task<IEnumerable<WorkflowInstance>> GetWorkflowInstancesAsync()
     {
+#pragma warning disable CS0612 // Type or member is obsolete
         return _repository.GetWorkflowInstances(null, null, null, null, 0, 100);
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 
     public Task<WorkflowInstance> GetWorkflowInstanceAsync(string id)
@@ -25,15 +27,5 @@ public class WorkflowMonitorService(
     public IEnumerable<WorkflowDefinition> GetRegisteredWorkflows()
     {
         return _registry.GetAllDefinitions();
-    }
-
-    public Task<string> StartWorkflowAsync(string workflowDefinitionName, int version, object? data = null)
-    {
-        return _host.StartWorkflow(workflowDefinitionName, version, data);
-    }
-
-    public Task<bool> TerminateWorkflowAsync(string workflowId)
-    {
-        return _host.TerminateWorkflow(workflowId);
     }
 }

@@ -48,7 +48,7 @@
             {
                 <MudText Typo="Typo.h6" Class="mb-4">Workflow Instance Details</MudText>
                 <div style="background-color: #1e1e1e; padding: 16px; border-radius: 4px; overflow-x: auto;">
-                    <pre style="margin: 0;"><code class="language-json" style="color: #d4d4d4; font-family: 'Consolas', 'Courier New', monospace;">@GetJsonDetails(_instance)</code></pre>
+                    <pre style="margin: 0;"><code class="language-json" style="color: #d4d4d4; font-family: 'Consolas', 'Courier New', monospace;">@GetJsonDetails(new SimpleWorkflowInstance(_instance))</code></pre>
                 </div>
             }
         </MudPaper>
@@ -103,12 +103,8 @@
 
     private string GetJsonDetails(object? data)
     {
-        return JsonSerializer.Serialize(data, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        return JsonSerializer.Serialize(data, AspNetCore.Json.WorkflowJsonSerializerOptions.Indented);
     }
-
 
     private string GetWorkflowStatusIcon(WorkflowStatus status)
     {
@@ -170,4 +166,31 @@
         _timer.Dispose();
     }
 
+    public class SimpleWorkflowInstance
+    {
+        public SimpleWorkflowInstance(WorkflowInstance instance)
+        {
+            Id = instance.Id;
+            Reference = instance.Reference;
+            WorkflowDefinitionId = instance.WorkflowDefinitionId;
+            Version = instance.Version;
+            Description = instance.Description;
+            CompleteTime = instance.CompleteTime;
+            CreateTime = instance.CreateTime;
+            Data = instance.Data;
+            NextExecution = instance.NextExecution;
+            Status = instance.Status;
+        }
+
+        public string Id { get; }
+        public string Reference { get; }
+        public string WorkflowDefinitionId { get; }
+        public int Version { get; }
+        public string Description { get; }
+        public DateTime CreateTime { get; }
+        public DateTime? CompleteTime { get; }
+        public object? Data { get; }
+        public long? NextExecution { get; }
+        public WorkflowStatus Status { get; }
+    }
 }

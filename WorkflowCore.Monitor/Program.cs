@@ -51,10 +51,12 @@ app.UseWorkflow(r =>
     r.RegisterWorkflow<LongDelayWorkflow>();
     r.RegisterWorkflow<ErrorRetryHandlingWorkflow>();
     r.RegisterWorkflow<ErrorAbortHandlingWorkflow>();
+    r.RegisterWorkflow<WhileTrueWorkflow>();
     r.RegisterWorkflow<StepsProgressWorkflow, StepsProgress>();
+    r.RegisterWorkflow<MixrobotChangeoverWorkflow, MixrobotChangeoverState>();
 });
 
 var mqttConsumerService = app.Services.GetRequiredService<IMqttConnection>();
-await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/+/active");
+await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/active/+");
 
 app.Run();

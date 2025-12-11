@@ -16,7 +16,7 @@ public class WorkflowInstanceMqttPersistence(IMqttPublisher mqttPublisher) : IWo
         if (workflow.Status is not (WorkflowStatus.Terminated or WorkflowStatus.Complete))
         {
             await _mqttPublisher.PublishAsync(
-                topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/{workflow.Reference[..8]}/active",
+                topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/active/{workflow.Reference[..8]}",
                 message: workflow,
                 retained: true,
                 expiryTime: TimeSpan.FromMinutes(15),
@@ -25,13 +25,13 @@ public class WorkflowInstanceMqttPersistence(IMqttPublisher mqttPublisher) : IWo
         else
         {
             await _mqttPublisher.PublishAsync(
-                topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/{workflow.Reference[..8]}/active",
+                topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/active/{workflow.Reference[..8]}",
                 message: null,
                 retained: true,
                 cancellationToken: cancellationToken);
 
             await _mqttPublisher.PublishAsync(
-                topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/{workflow.Reference[..8]}/finished",
+                topic: $"workflows-core/{workflow.WorkflowDefinitionId}:{workflow.Version}/final/{workflow.Reference[..8]}",
                 message: workflow,
                 retained: true,
                 expiryTime: TimeSpan.FromDays(14),

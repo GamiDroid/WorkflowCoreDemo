@@ -3,6 +3,7 @@ using MQTTnet;
 using System.Text.Json;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
+using WorkflowCore.Monitor.Services;
 
 namespace WorkflowCore.Monitor.Consumers;
 
@@ -15,7 +16,7 @@ public class WorkflowInstanceConsumer(
     {
         var json = message.ApplicationMessage.ConvertPayloadToString();
 
-        var workflowInstance = JsonSerializer.Deserialize<WorkflowInstance>(json, JsonSerializerOptions.Web)!;
+        var workflowInstance = JsonSerializer.Deserialize<WorkflowInstance>(json, WorkflowInstanceMqttPersistence.JsonOptions)!;
 
         var exists = await WorkflowInstanceExists(workflowInstance.Id);
         if (!exists)

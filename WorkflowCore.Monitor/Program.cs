@@ -57,6 +57,6 @@ app.UseWorkflow(r =>
 });
 
 var mqttConsumerService = app.Services.GetRequiredService<IMqttConnection>();
-await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/active/+");
+await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/active/+/instance");
 
 app.Run();

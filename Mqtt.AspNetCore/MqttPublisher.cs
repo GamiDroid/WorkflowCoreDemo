@@ -6,6 +6,7 @@ namespace Mqtt.AspNetCore;
 
 public interface IMqttPublisher
 {
+    Task PublishAsync(string topic, object? message, bool retained, TimeSpan? expiryTime, JsonSerializerOptions jsonSerializerOptions, CancellationToken cancellationToken = default);
     Task PublishAsync(string topic, object? message, bool retained = false, TimeSpan? expiryTime = null, CancellationToken cancellationToken = default);
 }
 
@@ -13,7 +14,7 @@ public class MqttPublisher(IMqttConnection mqtt) : IMqttPublisher
 {
     private readonly IMqttConnection _mqtt = mqtt;
 
-    public async Task PublishAsync(string topic, object? message, bool retained, TimeSpan? expiryTime, CancellationToken cancellationToken)
+    public async Task PublishAsync(string topic, object? message, bool retained, TimeSpan? expiryTime, JsonSerializerOptions jsonSerializerOptions, CancellationToken cancellationToken)
     {
         var mqttMessageBuilder = new MqttApplicationMessageBuilder()
             .WithContentType("application/json")
@@ -26,10 +27,10 @@ public class MqttPublisher(IMqttConnection mqtt) : IMqttPublisher
             mqttMessageBuilder = mqttMessageBuilder.WithMessageExpiryInterval((uint)expiryTime.Value.TotalSeconds);
 
         if (message is not null)
-            mqttMessageBuilder = mqttMessageBuilder.WithPayload(JsonSerializer.Serialize(message, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            mqttMessageBuilder = mqttMessageBuilder.WithPayload(JsonSerializer.Serialize(message, jsonSerializerOptions));
 
         var mqttMessage = mqttMessageBuilder.Build();
-        
+
         var client = _mqtt.GetClient();
 
         var result = await client.PublishAsync(mqttMessage, cancellationToken);
@@ -37,5 +38,11 @@ public class MqttPublisher(IMqttConnection mqtt) : IMqttPublisher
         {
             throw new MqttCommunicationException($"Failed to publish message to topic '{topic}'. Reason: {result.ReasonCode}");
         }
+    }
+
+
+    public Task PublishAsync(string topic, object? message, bool retained, TimeSpan? expiryTime, CancellationToken cancellationToken)
+    {
+        return PublishAsync(topic, message, retained, expiryTime, new JsonSerializerOptions(JsonSerializerDefaults.Web), cancellationToken);
     }
 }

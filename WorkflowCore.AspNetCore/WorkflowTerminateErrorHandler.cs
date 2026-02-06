@@ -49,7 +49,7 @@ public class WorkflowTerminateErrorHandler(
                 }
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         _host.OnStepError -= WorkflowHost_OnStepError;

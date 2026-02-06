@@ -13,12 +13,15 @@ public partial class MixrobotChangeoverWorkflow
     public abstract class BaseChangeoverStep : IStepBody
     {
         protected MixrobotChangeoverState Data { get; private set; } = null!;
+        protected int RetryCount { get; private set; }
 
         public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             Data = GetWokflowData(context);
+            RetryCount = context.ExecutionPointer.RetryCount;
 
-            await RunAsync();
+            if (!Data.HasError)
+                await RunAsync();
 
             return ExecutionResult.Next();
         }
@@ -26,10 +29,26 @@ public partial class MixrobotChangeoverWorkflow
         protected abstract Task RunAsync();
     }
 
+    public class ResetChangeoverStateStep(ChangeoverState state) : BaseChangeoverStep
+    {
+        private readonly ChangeoverState _state = state;
+
+        protected override async Task RunAsync()
+        {
+            Data.SetError(nameof(ResetChangeoverStateStep), "A random error occured");
+
+            Console.WriteLine("Reset changeover state");
+            await _state.ResetAsync();
+        }
+    }
+
     public class CreateBatchStep : BaseChangeoverStep
     {
         protected override Task RunAsync()
         {
+            if (RetryCount > 5)
+                Data.SetError(nameof(CreateBatchStep), "Failed to create batch after multiple retries.");
+
             Console.WriteLine("Create Batch");
             return Task.CompletedTask;
         }
@@ -40,6 +59,7 @@ public partial class MixrobotChangeoverWorkflow
         protected override Task RunAsync()
         {
             Console.WriteLine("Wait create Batch");
+
             return Task.CompletedTask;
         }
     }
@@ -49,6 +69,9 @@ public partial class MixrobotChangeoverWorkflow
         protected override Task RunAsync()
         {
             Console.WriteLine("Start order");
+            Data.SetError(nameof(CreateBatchStep), "Failed to create batch after multiple retries.");
+            //throw new NotImplementedException();
+
             return Task.CompletedTask;
         }
     }
@@ -122,6 +145,19 @@ public partial class MixrobotChangeoverWorkflow
         {
             Console.WriteLine("Finish changeover");
             return Task.CompletedTask;
+        }
+    }
+
+    public class ChangeoverErrorStep : IStepBody
+    {
+        public Task<ExecutionResult> RunAsync(IStepExecutionContext ctx)
+        {
+            var data = (MixrobotChangeoverState)ctx.Workflow.Data;
+
+            data.SetError(nameof(ChangeoverErrorStep), "Unknown error occured");
+
+            Console.WriteLine("changeover Stop due Error");
+            return Task.FromResult(ExecutionResult.Next());
         }
     }
 }

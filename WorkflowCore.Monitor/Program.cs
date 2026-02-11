@@ -8,6 +8,8 @@ using WorkflowCore.Monitor.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Add MudBlazor services
 builder.Services.AddMudServices();
 
@@ -27,6 +29,8 @@ builder.Services.AddMqtt();
 builder.Services.AddScoped<WorkflowInstanceService>();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -54,6 +58,12 @@ app.UseWorkflow(r =>
     r.RegisterWorkflow<WhileTrueWorkflow>();
     r.RegisterWorkflow<StepsProgressWorkflow, StepsProgress>();
     r.RegisterWorkflow<MixrobotChangeoverWorkflow, MixrobotChangeoverState>();
+    r.RegisterWorkflow<RecurDemoWorkflow, RecurDemoWorkflowData>();
+});
+
+app.MapPost("/batch/{batchId}", (string batchId) =>
+{
+    BatchManager.SimulateBatchCreation(batchId);
 });
 
 var mqttConsumerService = app.Services.GetRequiredService<IMqttConnection>();

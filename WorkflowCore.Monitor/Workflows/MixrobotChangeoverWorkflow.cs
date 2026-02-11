@@ -1,6 +1,4 @@
-﻿using Mqtt.AspNetCore;
-using System.Collections.Concurrent;
-using WorkflowCore.AspNetCore.Extensions;
+﻿using WorkflowCore.AspNetCore.Extensions;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
@@ -40,37 +38,6 @@ public enum ChangeoverstepStatus
     Skipped,
 }
 
-public class ChangeoverState(IMqttPublisher publisher)
-{
-    private readonly ConcurrentDictionary<string, ChangeoverStepInfo> _state = new()
-    {
-        ["create_batch"] = new(),
-        ["start_order_erp"] = new(),
-        ["load_printer_template"] = new(),
-        ["load_tramper_data"] = new(),
-        ["set_order_info"] = new(),
-        ["set_pallet_info"] = new(),
-        ["set_infeed_settings"] = new(),
-        ["load_schubert_data"] = new(),
-    };
-
-    private readonly IMqttPublisher _publisher = publisher;
-
-    public async Task ResetAsync()
-    {
-        _state["create_batch"] = new() { Title = "Batch aanmaken" };
-        _state["start_order_erp"] = new() { Title = "ERP order starten" };
-        _state["load_printer_template"] = new() { Title = "Dozenprinter inladen" };
-        _state["load_tramper_data"] = new() { Title = "parameters inladen in Tramper" };
-        _state["set_order_info"] = new() { Title = "Order info instellen" };
-        _state["set_pallet_info"] = new() { Title = "Pallet info instellen" };
-        _state["set_infeed_settings"] = new() { Title = "Infeed settings instellen" };
-        _state["load_schubert_data"] = new() { Title = "parameters inladen in Schubert" };
-
-        await _publisher.PublishAsync("mixrobot/l97/changeover-status", _state, retained: true);
-    }
-}
-
 public partial class MixrobotChangeoverWorkflow : IWorkflow<MixrobotChangeoverState>
 {
     public string Id => nameof(MixrobotChangeoverWorkflow);
@@ -80,7 +47,7 @@ public partial class MixrobotChangeoverWorkflow : IWorkflow<MixrobotChangeoverSt
     {
         builder
             .Init()
-            
+
             .Saga(b => b
 
                 .Then<ResetChangeoverStateStep>(b => b
@@ -88,7 +55,7 @@ public partial class MixrobotChangeoverWorkflow : IWorkflow<MixrobotChangeoverSt
                 )
 
                 .Then<CreateBatchStep>(b => b
-                    .Name("Create batch")               
+                    .Name("Create batch")
                     .OnError(WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(5))
                     .CancelCondition(state => state.HasError)
                 )

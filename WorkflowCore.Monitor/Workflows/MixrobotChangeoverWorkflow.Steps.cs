@@ -29,16 +29,13 @@ public partial class MixrobotChangeoverWorkflow
         protected abstract Task RunAsync();
     }
 
-    public class ResetChangeoverStateStep(ChangeoverState state) : BaseChangeoverStep
+    public class ResetChangeoverStateStep : BaseChangeoverStep
     {
-        private readonly ChangeoverState _state = state;
-
         protected override async Task RunAsync()
         {
             Data.SetError(nameof(ResetChangeoverStateStep), "A random error occured");
 
             Console.WriteLine("Reset changeover state");
-            await _state.ResetAsync();
         }
     }
 

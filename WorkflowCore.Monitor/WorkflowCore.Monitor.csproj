@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Mqtt.AspNetCore\Mqtt.AspNetCore.csproj" />
     <ProjectReference Include="..\WorkflowCore.AspNetCore\WorkflowCore.AspNetCore.csproj" />
+    <ProjectReference Include="..\WorkflowCoreDemo.ServiceDefaults\WorkflowCoreDemo.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

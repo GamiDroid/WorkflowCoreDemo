@@ -35,7 +35,19 @@ public class ComplexOrderWorkflowData
     
     // Cancellation tracking
     public bool IsCancellationRequested { get; set; }
-    
+
+    /// <summary>
+    /// Work-around helper: Throw als cancellation is requested
+    /// </summary>
+    public void ThrowIfCancellationRequested(string stepName)
+    {
+        if (IsCancellationRequested)
+        {
+            SetStepStatus(stepName, StepStatus.Cancelled);
+            throw new OperationCanceledException($"Workflow cancelled at step: {stepName}");
+        }
+    }
+
     public void SetError(string stepName, string message)
     {
         HasError = true;
@@ -184,13 +196,21 @@ public class ValidateCustomerStep : IStepBody
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
         var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        // Work-around: Check cancellation flag bij start van step
+        data.ThrowIfCancellationRequested(ComplexOrderSteps.ValidateCustomer);
+
         data.SetStepStatus(ComplexOrderSteps.ValidateCustomer, StepStatus.Running);
-        
+
         Console.WriteLine($"[ValidateCustomer] Validating customer {CustomerId}...");
-        
+
         try
         {
-            var result = await _crmService.ValidateCustomerAsync(CustomerId, context.CancellationToken);
+            // Work-around: Gebruik helper om cancellation te checken tijdens long-running call
+            var result = await CancellableTaskHelper.ExecuteWithCancellationCheck(
+                () => _crmService.ValidateCustomerAsync(CustomerId, context.CancellationToken),
+                () => data.IsCancellationRequested
+            );
             
             if (!result.IsValid)
             {
@@ -229,13 +249,21 @@ public class CheckInventoryStep : IStepBody
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
         var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        // Work-around: Check cancellation flag bij start van step
+        data.ThrowIfCancellationRequested(ComplexOrderSteps.CheckInventory);
+
         data.SetStepStatus(ComplexOrderSteps.CheckInventory, StepStatus.Running);
-        
+
         Console.WriteLine($"[CheckInventory] Checking availability for {OrderLines.Count()} products...");
-        
+
         try
         {
-            var result = await _inventoryService.CheckAvailabilityAsync(OrderLines, context.CancellationToken);
+            // Work-around: Gebruik helper om cancellation te checken tijdens long-running call
+            var result = await CancellableTaskHelper.ExecuteWithCancellationCheck(
+                () => _inventoryService.CheckAvailabilityAsync(OrderLines, context.CancellationToken),
+                () => data.IsCancellationRequested
+            );
             
             if (!result.AllAvailable)
             {
@@ -269,10 +297,14 @@ public class CreateErpOrderStep : IStepBody
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
         var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        // Work-around: Check cancellation flag bij start van step
+        data.ThrowIfCancellationRequested(ComplexOrderSteps.CreateErpOrder);
+
         data.SetStepStatus(ComplexOrderSteps.CreateErpOrder, StepStatus.Running);
-        
+
         Console.WriteLine($"[CreateErpOrder] Creating order in ERP...");
-        
+
         try
         {
             var orderRequest = new OrderRequest(
@@ -281,8 +313,12 @@ public class CreateErpOrderStep : IStepBody
                 data.OrderLines,
                 data.TotalAmount
             );
-            
-            CreatedOrderId = await _erpService.CreateOrderAsync(orderRequest, context.CancellationToken);
+
+            // Work-around: Gebruik helper om cancellation te checken tijdens long-running call
+            CreatedOrderId = await CancellableTaskHelper.ExecuteWithCancellationCheck(
+                () => _erpService.CreateOrderAsync(orderRequest, context.CancellationToken),
+                () => data.IsCancellationRequested
+            );
             
             Console.WriteLine($"[CreateErpOrder] Order created with ID {CreatedOrderId}");
             return ExecutionResult.Next();
@@ -312,13 +348,21 @@ public class ReserveInventoryStep : IStepBody
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
         var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        // Work-around: Check cancellation flag bij start van step
+        data.ThrowIfCancellationRequested(ComplexOrderSteps.ReserveInventory);
+
         data.SetStepStatus(ComplexOrderSteps.ReserveInventory, StepStatus.Running);
-        
+
         Console.WriteLine($"[ReserveInventory] Reserving inventory for order {OrderId}...");
-        
+
         try
         {
-            ReservationId = await _inventoryService.ReserveInventoryAsync(OrderId, OrderLines, context.CancellationToken);
+            // Work-around: Gebruik helper om cancellation te checken tijdens long-running call
+            ReservationId = await CancellableTaskHelper.ExecuteWithCancellationCheck(
+                () => _inventoryService.ReserveInventoryAsync(OrderId, OrderLines, context.CancellationToken),
+                () => data.IsCancellationRequested
+            );
             
             Console.WriteLine($"[ReserveInventory] Inventory reserved with ID {ReservationId}");
             return ExecutionResult.Next();
@@ -350,14 +394,23 @@ public class ScheduleShipmentStep : IStepBody
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
         var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        // Work-around: Check cancellation flag bij start van step
+        data.ThrowIfCancellationRequested(ComplexOrderSteps.ScheduleShipment);
+
         data.SetStepStatus(ComplexOrderSteps.ScheduleShipment, StepStatus.Running);
-        
+
         Console.WriteLine($"[ScheduleShipment] Scheduling shipment for order {OrderId}...");
-        
+
         try
         {
             var request = new ShipmentRequest(OrderId, CustomerId, Address, RequestedDate);
-            var result = await _shippingService.ScheduleShipmentAsync(request, context.CancellationToken);
+
+            // Work-around: Gebruik helper om cancellation te checken tijdens long-running call
+            var result = await CancellableTaskHelper.ExecuteWithCancellationCheck(
+                () => _shippingService.ScheduleShipmentAsync(request, context.CancellationToken),
+                () => data.IsCancellationRequested
+            );
             
             ShipmentId = result.ShipmentId;
             
@@ -387,13 +440,21 @@ public class ConfirmErpOrderStep : IStepBody
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
         var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        // Work-around: Check cancellation flag bij start van step
+        data.ThrowIfCancellationRequested(ComplexOrderSteps.ConfirmErpOrder);
+
         data.SetStepStatus(ComplexOrderSteps.ConfirmErpOrder, StepStatus.Running);
-        
+
         Console.WriteLine($"[ConfirmErpOrder] Confirming order {OrderId} in ERP...");
-        
+
         try
         {
-            var confirmed = await _erpService.ConfirmOrderAsync(OrderId, context.CancellationToken);
+            // Work-around: Gebruik helper om cancellation te checken tijdens long-running call
+            var confirmed = await CancellableTaskHelper.ExecuteWithCancellationCheck(
+                () => _erpService.ConfirmOrderAsync(OrderId, context.CancellationToken),
+                () => data.IsCancellationRequested
+            );
             
             if (!confirmed)
             {

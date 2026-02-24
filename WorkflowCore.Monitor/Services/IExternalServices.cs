@@ -1,6 +1,35 @@
 namespace WorkflowCore.Monitor.Services;
 
 /// <summary>
+/// Helper voor cancellation checks tijdens async operaties
+/// </summary>
+public static class CancellableTaskHelper
+{
+    /// <summary>
+    /// Voert een async operatie uit met periodieke cancellation checks
+    /// </summary>
+    public static async Task<T> ExecuteWithCancellationCheck<T>(
+        Func<Task<T>> operation,
+        Func<bool> shouldCancel,
+        int pollIntervalMs = 200)
+    {
+        var operationTask = operation();
+
+        while (!operationTask.IsCompleted)
+        {
+            if (shouldCancel())
+            {
+                throw new OperationCanceledException("Operation cancelled by workflow");
+            }
+
+            await Task.WhenAny(operationTask, Task.Delay(pollIntervalMs));
+        }
+
+        return await operationTask;
+    }
+}
+
+/// <summary>
 /// CRM service voor klantvalidatie
 /// </summary>
 public interface ICrmService

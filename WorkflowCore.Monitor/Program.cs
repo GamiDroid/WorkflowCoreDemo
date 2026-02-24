@@ -27,6 +27,7 @@ builder.Services.AddWorkflow(setup =>
 builder.Services.AddMqtt();
 
 builder.Services.AddScoped<WorkflowInstanceService>();
+builder.Services.AddSingleton<TerminateWorkflowController>();
 
 var app = builder.Build();
 
@@ -59,6 +60,7 @@ app.UseWorkflow(r =>
     r.RegisterWorkflow<StepsProgressWorkflow, StepsProgress>();
     r.RegisterWorkflow<MixrobotChangeoverWorkflow, MixrobotChangeoverState>();
     r.RegisterWorkflow<RecurDemoWorkflow, RecurDemoWorkflowData>();
+    r.RegisterWorkflow<CancelStepsWorkflow>();
 });
 
 app.MapPost("/batch/{batchId}", (string batchId) =>
@@ -67,6 +69,6 @@ app.MapPost("/batch/{batchId}", (string batchId) =>
 });
 
 var mqttConsumerService = app.Services.GetRequiredService<IMqttConnection>();
-await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/active/+/instance");
+//await mqttConsumerService.AddConsumerAsync<WorkflowInstanceConsumer>("workflows-core/+/active/+/instance");
 
 app.Run();

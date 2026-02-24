@@ -35,6 +35,14 @@
                            Disabled="@_instanceIsCompleted">
                     Stop
                 </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Warning"
+                           StartIcon="@Icons.Material.Filled.Pause"
+                           OnClick="Suspend"
+                           Class="ml-4"
+                           Disabled="@_instanceIsCompleted">
+                    Suspend
+                </MudButton>
             </MudToolBar>
             
             @if (_selectedPointer is not null)
@@ -98,6 +106,14 @@
         var stopped = await WorkflowInstanceService.StopAsync(_instance);
 
         if (stopped)
+            await RefreshData();
+    }
+
+    private async Task Suspend()
+    {
+        var suspended = await WorkflowInstanceService.StopAsync(_instance);
+
+        if (suspended)
             await RefreshData();
     }
 

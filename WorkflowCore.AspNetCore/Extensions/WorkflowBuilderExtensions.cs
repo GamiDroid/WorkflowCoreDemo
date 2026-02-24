@@ -27,6 +27,7 @@ public static class WorkflowBuilderExtensions
 
     private static void SetDefaults(IStepExecutionContext context)
     {
-        context.Workflow.Reference = Guid.NewGuid().ToString();
+        if (string.IsNullOrEmpty(context.Workflow.Reference))
+            context.Workflow.Reference = Guid.NewGuid().ToString();
     }
 }

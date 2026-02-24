@@ -182,16 +182,11 @@ public class ComplexOrderWorkflow : IWorkflow<ComplexOrderWorkflowData>
 
 // Workflow Steps
 
-public class ValidateCustomerStep : IStepBody
+public class ValidateCustomerStep(ICrmService crmService) : IStepBody
 {
-    private readonly ICrmService _crmService;
+    private readonly ICrmService _crmService = crmService;
 
     public string CustomerId { get; set; } = string.Empty;
-
-    public ValidateCustomerStep(ICrmService crmService)
-    {
-        _crmService = crmService;
-    }
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
@@ -235,16 +230,11 @@ public class ValidateCustomerStep : IStepBody
     }
 }
 
-public class CheckInventoryStep : IStepBody
+public class CheckInventoryStep(IInventoryService inventoryService) : IStepBody
 {
-    private readonly IInventoryService _inventoryService;
+    private readonly IInventoryService _inventoryService = inventoryService;
 
     public IEnumerable<OrderLine> OrderLines { get; set; } = Enumerable.Empty<OrderLine>();
-
-    public CheckInventoryStep(IInventoryService inventoryService)
-    {
-        _inventoryService = inventoryService;
-    }
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
@@ -283,16 +273,11 @@ public class CheckInventoryStep : IStepBody
     }
 }
 
-public class CreateErpOrderStep : IStepBody
+public class CreateErpOrderStep(IErpService erpService) : IStepBody
 {
-    private readonly IErpService _erpService;
+    private readonly IErpService _erpService = erpService;
 
     public string? CreatedOrderId { get; set; }
-
-    public CreateErpOrderStep(IErpService erpService)
-    {
-        _erpService = erpService;
-    }
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
@@ -332,18 +317,13 @@ public class CreateErpOrderStep : IStepBody
     }
 }
 
-public class ReserveInventoryStep : IStepBody
+public class ReserveInventoryStep(IInventoryService inventoryService) : IStepBody
 {
-    private readonly IInventoryService _inventoryService;
+    private readonly IInventoryService _inventoryService = inventoryService;
 
     public string OrderId { get; set; } = string.Empty;
     public IEnumerable<OrderLine> OrderLines { get; set; } = Enumerable.Empty<OrderLine>();
     public string? ReservationId { get; set; }
-
-    public ReserveInventoryStep(IInventoryService inventoryService)
-    {
-        _inventoryService = inventoryService;
-    }
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
@@ -376,20 +356,15 @@ public class ReserveInventoryStep : IStepBody
     }
 }
 
-public class ScheduleShipmentStep : IStepBody
+public class ScheduleShipmentStep(IShippingService shippingService) : IStepBody
 {
-    private readonly IShippingService _shippingService;
+    private readonly IShippingService _shippingService = shippingService;
 
     public string OrderId { get; set; } = string.Empty;
     public string CustomerId { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public DateTime RequestedDate { get; set; }
     public string? ShipmentId { get; set; }
-
-    public ScheduleShipmentStep(IShippingService shippingService)
-    {
-        _shippingService = shippingService;
-    }
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
@@ -426,16 +401,11 @@ public class ScheduleShipmentStep : IStepBody
     }
 }
 
-public class ConfirmErpOrderStep : IStepBody
+public class ConfirmErpOrderStep(IErpService erpService) : IStepBody
 {
-    private readonly IErpService _erpService;
+    private readonly IErpService _erpService = erpService;
 
     public string OrderId { get; set; } = string.Empty;
-
-    public ConfirmErpOrderStep(IErpService erpService)
-    {
-        _erpService = erpService;
-    }
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {
@@ -477,21 +447,14 @@ public class ConfirmErpOrderStep : IStepBody
 /// <summary>
 /// Rollback/compensatie step die alle wijzigingen ongedaan maakt
 /// </summary>
-public class RollbackOrderStep : IStepBody
+public class RollbackOrderStep(
+    IErpService erpService,
+    IInventoryService inventoryService,
+    IShippingService shippingService) : IStepBody
 {
-    private readonly IErpService _erpService;
-    private readonly IInventoryService _inventoryService;
-    private readonly IShippingService _shippingService;
-
-    public RollbackOrderStep(
-        IErpService erpService,
-        IInventoryService inventoryService,
-        IShippingService shippingService)
-    {
-        _erpService = erpService;
-        _inventoryService = inventoryService;
-        _shippingService = shippingService;
-    }
+    private readonly IErpService _erpService = erpService;
+    private readonly IInventoryService _inventoryService = inventoryService;
+    private readonly IShippingService _shippingService = shippingService;
 
     public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
     {

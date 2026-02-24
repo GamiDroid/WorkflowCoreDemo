@@ -29,6 +29,11 @@ builder.Services.AddMqtt();
 builder.Services.AddScoped<WorkflowInstanceService>();
 builder.Services.AddSingleton<TerminateWorkflowController>();
 
+builder.Services.AddScoped<ICrmService, MockCrmService>(); 
+builder.Services.AddScoped<IErpService, MockErpService>(); 
+builder.Services.AddScoped<IInventoryService, MockInventoryService>(); 
+builder.Services.AddScoped<IShippingService, MockShippingService>(); 
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -61,6 +66,7 @@ app.UseWorkflow(r =>
     r.RegisterWorkflow<MixrobotChangeoverWorkflow, MixrobotChangeoverState>();
     r.RegisterWorkflow<RecurDemoWorkflow, RecurDemoWorkflowData>();
     r.RegisterWorkflow<CancelStepsWorkflow>();
+    r.RegisterWorkflow<ComplexOrderWorkflow, ComplexOrderWorkflowData>();
 });
 
 app.MapPost("/batch/{batchId}", (string batchId) =>

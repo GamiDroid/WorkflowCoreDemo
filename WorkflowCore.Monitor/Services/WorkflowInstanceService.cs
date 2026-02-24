@@ -2,6 +2,7 @@
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 using WorkflowCore.Monitor.Components.Dialogs;
+using WorkflowCore.Monitor.Workflows;
 
 namespace WorkflowCore.Monitor.Services;
 
@@ -40,6 +41,23 @@ public class WorkflowInstanceService(
 
             obj = dResult.Data;
         }
+        else if (defId == "ComplexOrderWorkflow" && version == 1)
+        {
+            var data = new ComplexOrderWorkflowData
+            {
+                CustomerId = "CUST-12345",
+                CustomerName = "Demo Customer",
+                DeliveryAddress = "Street 123, City",
+                RequestedDeliveryDate = DateTime.Now.AddDays(7),
+                OrderLines = new List<OrderLine>
+                {
+                    new("PROD-001", "Product 1", 10, 99.99m),
+                    new("PROD-002", "Product 2", 5, 149.99m)
+                }
+            };
+
+            obj = data;
+        }
 
         var workflowId =
             await _host.StartWorkflow(defId, version, obj);
@@ -48,6 +66,9 @@ public class WorkflowInstanceService(
 
     public async Task<bool> StopAsync(WorkflowInstance instance)
     {
+        if (instance.Data is ComplexOrderWorkflowData data)
+            data.IsCancellationRequested = true;
+
         var terminated = true;
         await terminateWorkflowController.TerminateAsync(instance.Id);
 

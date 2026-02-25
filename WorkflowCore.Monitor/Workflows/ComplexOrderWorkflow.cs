@@ -27,7 +27,9 @@ public class ComplexOrderWorkflowData
     public string? ErpOrderId { get; set; }
     public string? InventoryReservationId { get; set; }
     public string? ShipmentId { get; set; }
-    
+
+    public int PollCount { get; set; } = 0;
+
     // Error tracking
     public bool HasError { get; set; }
     public string? ErrorMessage { get; set; }
@@ -78,6 +80,7 @@ public class ComplexOrderSteps
     public const string CheckInventory = "CheckInventory";
     public const string CreateErpOrder = "CreateErpOrder";
     public const string ReserveInventory = "ReserveInventory";
+    public const string PollReserveInventory = "PollReserveInventory";
     public const string ScheduleShipment = "ScheduleShipment";
     public const string ConfirmErpOrder = "ConfirmErpOrder";
     public const string Rollback = "Rollback";
@@ -142,6 +145,15 @@ public class ComplexOrderWorkflow : IWorkflow<ComplexOrderWorkflowData>
                         data.SetStepStatus(ComplexOrderSteps.ReserveInventory, StepStatus.Completed);
                     })
                 )
+
+                // Stap 4b: Poll op reservering (simuleert een long-running proces waarbij we moeten wachten tot de reservering is bevestigd)
+                .While(d => !(d.HasError || d.IsCancellationRequested) && d.StepStatuses[ComplexOrderSteps.PollReserveInventory] != StepStatus.Completed).Do(then => then
+                    .Delay(d => TimeSpan.FromSeconds(2)).Name("Wait 2 sec.")
+                    .Then<PollReserveInventoryStep>(s => s
+                        .Name("Poll Reserve Inventory")
+                        .CancelCondition(d => d.HasError || d.IsCancellationRequested)
+                    )
+                ).Name("While polling reserve inventory")
 
                 // Stap 5: Schedule verzending
                 .Then<ScheduleShipmentStep>(s => s
@@ -345,6 +357,9 @@ public class ReserveInventoryStep(IInventoryService inventoryService) : IStepBod
             );
             
             Console.WriteLine($"[ReserveInventory] Inventory reserved with ID {ReservationId}");
+
+            data.SetStepStatus("PollReserveInventory", StepStatus.Running);
+
             return ExecutionResult.Next();
         }
         catch (ExternalServiceException ex)
@@ -353,6 +368,27 @@ public class ReserveInventoryStep(IInventoryService inventoryService) : IStepBod
             data.SetError("ReserveInventory", ex.Message);
             throw;
         }
+    }
+}
+
+public class PollReserveInventoryStep : IStepBody
+{
+    public Task<ExecutionResult> RunAsync(IStepExecutionContext context)
+    {
+        var data = (ComplexOrderWorkflowData)context.Workflow.Data;
+
+        data.PollCount++;
+
+        Console.WriteLine($"[PollReserveInventory] Polling inventory reservation status... Attempt {data.PollCount}");
+
+        // Simuleer dat na 3 pogingen de reservering is bevestigd
+        if (data.PollCount >= 3)
+        {
+            Console.WriteLine($"[PollReserveInventory] Inventory reservation confirmed after {data.PollCount} attempts");
+            data.SetStepStatus(ComplexOrderSteps.PollReserveInventory, StepStatus.Completed);
+        }
+
+        return Task.FromResult(ExecutionResult.Next());
     }
 }
 

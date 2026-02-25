@@ -8,6 +8,8 @@ public class MockCrmService : ICrmService
     private readonly Random _random = new();
     private readonly ILogger<MockCrmService> _logger;
 
+    private bool _simulateFailure = true;
+
     public MockCrmService(ILogger<MockCrmService> logger)
     {
         _logger = logger;
@@ -16,25 +18,28 @@ public class MockCrmService : ICrmService
     public async Task<CustomerValidationResult> ValidateCustomerAsync(string customerId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("CRM: Validating customer {CustomerId}", customerId);
-        await Task.Delay(_random.Next(5000, 15000), cancellationToken);
+        await Task.Delay(_random.Next(500, 1500), cancellationToken);
 
-        // Simuleer failures (10% kans)
-        if (_random.Next(100) < 10)
+        if (_simulateFailure)
         {
-            _logger.LogError("CRM: Service temporarily unavailable");
-            throw new ExternalServiceException("CRM service temporarily unavailable");
-        }
+            // Simuleer failures (10% kans)
+            if (_random.Next(100) < 10)
+            {
+                _logger.LogError("CRM: Service temporarily unavailable");
+                throw new ExternalServiceException("CRM service temporarily unavailable");
+            }
 
-        // Simuleer blacklist check
-        if (customerId.Contains("BLOCKED", StringComparison.OrdinalIgnoreCase))
-        {
-            return new CustomerValidationResult(false, "Customer is blacklisted", true);
-        }
+            // Simuleer blacklist check
+            if (customerId.Contains("BLOCKED", StringComparison.OrdinalIgnoreCase))
+            {
+                return new CustomerValidationResult(false, "Customer is blacklisted", true);
+            }
 
-        // Simuleer ongeldige klant
-        if (customerId.Contains("INVALID", StringComparison.OrdinalIgnoreCase))
-        {
-            return new CustomerValidationResult(false, "Customer not found", false);
+            // Simuleer ongeldige klant
+            if (customerId.Contains("INVALID", StringComparison.OrdinalIgnoreCase))
+            {
+                return new CustomerValidationResult(false, "Customer not found", false);
+            } 
         }
 
         return new CustomerValidationResult(true, null, false);
@@ -58,6 +63,8 @@ public class MockErpService : IErpService
     private readonly ILogger<MockErpService> _logger;
     private readonly HashSet<string> _createdOrders = new();
 
+    private bool _simulateFailure = true;
+
     public MockErpService(ILogger<MockErpService> logger)
     {
         _logger = logger;
@@ -70,11 +77,14 @@ public class MockErpService : IErpService
         
         await Task.Delay(_random.Next(1000, 2000), cancellationToken);
 
-        // Simuleer failures (15% kans)
-        if (_random.Next(100) < 15)
+        if (_simulateFailure)
         {
-            _logger.LogError("ERP: Failed to create order - system overload");
-            throw new ExternalServiceException("ERP system overload");
+            // Simuleer failures (15% kans)
+            if (_random.Next(100) < 15)
+            {
+                _logger.LogError("ERP: Failed to create order - system overload");
+                throw new ExternalServiceException("ERP system overload");
+            }
         }
 
         var orderId = $"ERP-{Guid.NewGuid():N}".Substring(0, 20);
@@ -111,6 +121,8 @@ public class MockInventoryService : IInventoryService
     private readonly Dictionary<string, string> _reservations = new();
     private readonly HashSet<string> _outOfStockProducts = new() { "PROD-999", "PROD-404" };
 
+    private bool _simulateFailure = true;
+
     public MockInventoryService(ILogger<MockInventoryService> logger)
     {
         _logger = logger;
@@ -121,11 +133,14 @@ public class MockInventoryService : IInventoryService
         _logger.LogInformation("Inventory: Checking availability for {Count} items", items.Count());
         await Task.Delay(_random.Next(800, 1500), cancellationToken);
 
-        // Simuleer timeout (5% kans)
-        if (_random.Next(100) < 5)
+        if (_simulateFailure)
         {
-            _logger.LogError("Inventory: Service timeout");
-            throw new ExternalServiceException("Inventory service timeout");
+            // Simuleer timeout (5% kans)
+            if (_random.Next(100) < 5)
+            {
+                _logger.LogError("Inventory: Service timeout");
+                throw new ExternalServiceException("Inventory service timeout");
+            } 
         }
 
         var unavailable = items
@@ -146,11 +161,14 @@ public class MockInventoryService : IInventoryService
         _logger.LogInformation("Inventory: Reserving inventory for order {OrderId}", orderId);
         await Task.Delay(_random.Next(1000, 2000), cancellationToken);
 
-        // Simuleer failure (10% kans)
-        if (_random.Next(100) < 10)
+        if (_simulateFailure)
         {
-            _logger.LogError("Inventory: Failed to reserve - locking issue");
-            throw new ExternalServiceException("Inventory reservation failed - locking issue");
+            // Simuleer failure (10% kans)
+            if (_random.Next(100) < 10)
+            {
+                _logger.LogError("Inventory: Failed to reserve - locking issue");
+                throw new ExternalServiceException("Inventory reservation failed - locking issue");
+            } 
         }
 
         var reservationId = $"RES-{Guid.NewGuid():N}".Substring(0, 20);
@@ -179,6 +197,8 @@ public class MockShippingService : IShippingService
     private readonly Dictionary<string, ShipmentResult> _shipments = new();
     private readonly string[] _carriers = { "DHL", "PostNL", "DPD", "UPS" };
 
+    private bool _simulateFailure = true;
+
     public MockShippingService(ILogger<MockShippingService> logger)
     {
         _logger = logger;
@@ -189,11 +209,14 @@ public class MockShippingService : IShippingService
         _logger.LogInformation("Shipping: Scheduling shipment for order {OrderId}", request.OrderId);
         await Task.Delay(_random.Next(1500, 2500), cancellationToken);
 
-        // Simuleer failure (8% kans)
-        if (_random.Next(100) < 8)
+        if (_simulateFailure)
         {
-            _logger.LogError("Shipping: No carriers available for requested date");
-            throw new ExternalServiceException("No carriers available for requested date");
+            // Simuleer failure (8% kans)
+            if (_random.Next(100) < 8)
+            {
+                _logger.LogError("Shipping: No carriers available for requested date");
+                throw new ExternalServiceException("No carriers available for requested date");
+            } 
         }
 
         var carrier = _carriers[_random.Next(_carriers.Length)];

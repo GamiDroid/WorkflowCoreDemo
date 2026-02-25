@@ -29,10 +29,10 @@ builder.Services.AddMqtt();
 builder.Services.AddScoped<WorkflowInstanceService>();
 builder.Services.AddSingleton<TerminateWorkflowController>();
 
-builder.Services.AddScoped<ICrmService, MockCrmService>(); 
-builder.Services.AddScoped<IErpService, MockErpService>(); 
-builder.Services.AddScoped<IInventoryService, MockInventoryService>(); 
-builder.Services.AddScoped<IShippingService, MockShippingService>(); 
+builder.Services.AddSingleton<ICrmService, MockCrmService>(); 
+builder.Services.AddSingleton<IErpService, MockErpService>(); 
+builder.Services.AddSingleton<IInventoryService, MockInventoryService>(); 
+builder.Services.AddSingleton<IShippingService, MockShippingService>(); 
 
 var app = builder.Build();
 

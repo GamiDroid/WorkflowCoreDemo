@@ -9,8 +9,7 @@ namespace WorkflowCore.Monitor.Services;
 public class WorkflowInstanceService(
         IWorkflowHost host,
         ISnackbar snackbar,
-        IDialogService dialogService,
-        TerminateWorkflowController terminateWorkflowController
+        IDialogService dialogService
     )
 {
     private readonly IWorkflowHost _host = host;
@@ -70,7 +69,7 @@ public class WorkflowInstanceService(
             data.IsCancellationRequested = true;
 
         var terminated = true;
-        await terminateWorkflowController.TerminateAsync(instance.Id);
+        //await terminateWorkflowController.TerminateAsync(instance.Id);
 
         if (!terminated)
         {

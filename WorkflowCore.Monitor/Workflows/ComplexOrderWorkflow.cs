@@ -102,23 +102,29 @@ public class ComplexOrderWorkflow : IWorkflow<ComplexOrderWorkflowData>
             // Saga pattern voor rollback support
             .Saga(saga => saga
                 
-                // Stap 1: Valideer klant via CRM
-                .Then<ValidateCustomerStep>(s => s
-                    .Name("Validate Customer")
-                    .OnError(WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(3))
-                    .CancelCondition(data => data.IsCancellationRequested)
-                    .Input(step => step.CustomerId, data => data.CustomerId)
-                    .Output((step, data) => data.SetStepStatus(ComplexOrderSteps.ValidateCustomer, StepStatus.Completed))
+                .Parallel()
+                .Do(par => par
+                    
+                    // Stap 1: Valideer klant via CRM
+                    .Then<ValidateCustomerStep>(s => s
+                        .Name("Validate Customer")
+                        .OnError(WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(3))
+                        .CancelCondition(data => data.IsCancellationRequested)
+                        .Input(step => step.CustomerId, data => data.CustomerId)
+                        .Output((step, data) => data.SetStepStatus(ComplexOrderSteps.ValidateCustomer, StepStatus.Completed))
+                    )
                 )
-
-                // Stap 2: Check voorraad via Inventory
-                .Then<CheckInventoryStep>(s => s
-                    .Name("Check Inventory")
-                    .OnError(WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(5))
-                    .CancelCondition(data => data.HasError || data.IsCancellationRequested)
-                    .Input(step => step.OrderLines, data => data.OrderLines)
-                    .Output((step, data) => data.SetStepStatus(ComplexOrderSteps.CheckInventory, StepStatus.Completed))
+                .Do(par => par
+                    // Stap 2: Check voorraad via Inventory
+                    .Then<CheckInventoryStep>(s => s
+                        .Name("Check Inventory")
+                        .OnError(WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(5))
+                        .CancelCondition(data => data.HasError || data.IsCancellationRequested)
+                        .Input(step => step.OrderLines, data => data.OrderLines)
+                        .Output((step, data) => data.SetStepStatus(ComplexOrderSteps.CheckInventory, StepStatus.Completed))
+                    )
                 )
+                .Join().Name("Join parallel")
 
                 // Stap 3: Maak order in ERP
                 .Then<CreateErpOrderStep>(s => s

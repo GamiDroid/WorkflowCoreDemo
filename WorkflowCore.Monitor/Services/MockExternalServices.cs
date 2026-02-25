@@ -18,7 +18,7 @@ public class MockCrmService : ICrmService
     public async Task<CustomerValidationResult> ValidateCustomerAsync(string customerId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("CRM: Validating customer {CustomerId}", customerId);
-        await Task.Delay(_random.Next(500, 1500), cancellationToken);
+        await Task.Delay(_random.Next(5000, 15000), cancellationToken);
 
         if (_simulateFailure)
         {

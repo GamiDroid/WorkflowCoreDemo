@@ -19,7 +19,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddWorkflow(setup =>
 {
-    setup.AddScoped<IWorkflowInstancePersistence, WorkflowInstanceMqttPersistence>();
+    //setup.AddScoped<IWorkflowInstancePersistence, WorkflowInstanceMqttPersistence>();
     setup.AddScoped<WorkflowMonitorService>();
     setup.AddWorkflowStepsFromAssembly();
 });

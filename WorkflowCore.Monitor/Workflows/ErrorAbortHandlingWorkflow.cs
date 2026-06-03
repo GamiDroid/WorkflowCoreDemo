@@ -11,6 +11,7 @@ public class ErrorAbortHandlingWorkflow : IWorkflow
     public void Build(IWorkflowBuilder<object> builder)
     {
         builder
+            //.UseDefaultErrorBehavior(WorkflowErrorHandling.)
             .StartWith(ctx =>
             {
                 ctx.Workflow.Description = "Abort on error example.";
@@ -27,7 +28,7 @@ public class ErrorAbortHandlingWorkflow : IWorkflow
     {
         public override ExecutionResult Run(IStepExecutionContext context)
         {
-            throw new WorkflowAbortException("Abort workflow!");
+            throw new Exception("Abort workflow!");
         }
     }
 }

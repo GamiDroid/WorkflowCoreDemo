@@ -228,13 +228,13 @@ public class ValidateCustomerStep(ICrmService crmService) : IStepBody
             if (!result.IsValid)
             {
                 data.SetError("ValidateCustomer", $"Customer validation failed: {result.Reason}");
-                throw new WorkflowAbortException($"Customer validation failed: {result.Reason}");
+                throw new Exception($"Customer validation failed: {result.Reason}");
             }
             
             if (result.IsBlacklisted)
             {
                 data.SetError("ValidateCustomer", "Customer is blacklisted");
-                throw new WorkflowAbortException("Customer is blacklisted");
+                throw new Exception("Customer is blacklisted");
             }
             
             Console.WriteLine($"[ValidateCustomer] Customer {CustomerId} validated successfully");
@@ -277,7 +277,7 @@ public class CheckInventoryStep(IInventoryService inventoryService) : IStepBody
             {
                 var unavailable = string.Join(", ", result.UnavailableProducts);
                 data.SetError("CheckInventory", $"Products not available: {unavailable}");
-                throw new WorkflowAbortException($"Products not available: {unavailable}");
+                throw new Exception($"Products not available: {unavailable}");
             }
             
             Console.WriteLine($"[CheckInventory] All products available");

@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 using System.Reflection;
 using WorkflowCore.AspNetCore;
 using WorkflowCore.Interface;
-using WorkflowCore.Monitor.Workflows;
 
 namespace WorkflowCore.AspNetCore;
 
@@ -13,10 +12,8 @@ public static class WorkflowExtensions
     {
         services.AddWorkflow();
 
-        services.AddHostedService<WorkflowTerminateErrorHandler>();
-
-        services.AddWorkflowMiddleware<PersistWorkflowPostMiddleware>();
-        services.AddWorkflowStepMiddleware<PersistWorkflowStepMiddleware>();
+        //services.AddWorkflowMiddleware<PersistWorkflowPostMiddleware>();
+        //services.AddWorkflowStepMiddleware<PersistWorkflowStepMiddleware>();
 
         setupAction(services);
 

@@ -4,11 +4,9 @@ using WorkflowCore.Models;
 namespace WorkflowCore.AspNetCore;
 
 public class WorkflowMonitorService(
-    IWorkflowHost host,
     IWorkflowRegistry registry,
     IWorkflowRepository repository)
 {
-    private readonly IWorkflowHost _host = host;
     private readonly IWorkflowRegistry _registry = registry;
     private readonly IWorkflowRepository _repository = repository;
 

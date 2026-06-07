@@ -1,4 +1,4 @@
-﻿@page "/workflows/{Id}/{Version?}"
+﻿@page "/workflows/{Id}/{Version:int?}"
 
 @inject Services.WorkflowInstanceService WorkflowInstanceService
 @inject WorkflowMonitorService WorkflowMonitorService
@@ -23,7 +23,7 @@
             <CellTemplate>
                 <MudStack Row>
                     <MudButton OnClick="_ => Stop(context.Item)" Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Cancel">Stop</MudButton>
-                    <MudIconButton Href="@($"workflows/instances/{context.Item.Id}")" Icon="@Icons.Material.Filled.MoreVert" />
+                    <MudIconButton Href="@($"workflows/{Id}/{_version}/{context.Item.Id}")" Icon="@Icons.Material.Filled.MoreVert" />
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>

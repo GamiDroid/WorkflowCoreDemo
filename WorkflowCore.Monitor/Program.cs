@@ -17,17 +17,14 @@ builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddWorkflow(setup =>
-{
-    //setup.AddScoped<IWorkflowInstancePersistence, WorkflowInstanceMqttPersistence>();
-    setup.AddScoped<WorkflowMonitorService>();
-    setup.AddWorkflowStepsFromAssembly();
-});
+builder.Services.AddWorkflow();
+
+builder.Services.AddScoped<WorkflowMonitorService>();
+builder.Services.AddWorkflowStepsFromAssembly();
 
 builder.Services.AddMqtt();
 
 builder.Services.AddScoped<WorkflowInstanceService>();
-builder.Services.AddSingleton<TerminateWorkflowController>();
 
 builder.Services.AddSingleton<ICrmService, MockCrmService>(); 
 builder.Services.AddSingleton<IErpService, MockErpService>(); 
@@ -54,6 +51,9 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// Map controller endpoints for diagnostics
+app.MapControllers();
 
 app.UseWorkflow(r =>
 {

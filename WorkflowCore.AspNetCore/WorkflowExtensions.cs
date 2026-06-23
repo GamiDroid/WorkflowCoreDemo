@@ -8,18 +8,6 @@ namespace WorkflowCore.AspNetCore;
 
 public static class WorkflowExtensions
 {
-    public static IServiceCollection AddWorkflow(this IServiceCollection services, Action<IServiceCollection> setupAction)
-    {
-        services.AddWorkflow();
-
-        //services.AddWorkflowMiddleware<PersistWorkflowPostMiddleware>();
-        //services.AddWorkflowStepMiddleware<PersistWorkflowStepMiddleware>();
-
-        setupAction(services);
-
-        return services;
-    }
-
     public static void UseWorkflow(this IHost app, Action<IWorkflowController> registerAction)
     {
         var workflowHost = app.Services.GetRequiredService<IWorkflowHost>();

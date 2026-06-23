@@ -68,8 +68,7 @@ public class WorkflowInstanceService(
         if (instance.Data is ComplexOrderWorkflowData data)
             data.IsCancellationRequested = true;
 
-        var terminated = true;
-        //await terminateWorkflowController.TerminateAsync(instance.Id);
+        var terminated = await _host.TerminateWorkflow(instance.Id);
 
         if (!terminated)
         {
@@ -79,23 +78,5 @@ public class WorkflowInstanceService(
 
         _snackbar.Add($"Worflow {WorkflowUiHelper.WorkflowInstanceDisplay(instance.WorkflowDefinitionId, instance.Version, instance.Id)} terminated.", Severity.Warning);
         return true;
-    }
-}
-
-public class TerminateWorkflowController
-{
-    private readonly IWorkflowHost _host;
-
-    public TerminateWorkflowController(IWorkflowHost host)
-    {
-        _host = host;
-    }
-
-    public async Task TerminateAsync(string workflowId)
-    {
-        while (await _host.TerminateWorkflow(workflowId) == false)
-        {
-            await Task.Delay(100);
-        }
     }
 }
